@@ -1,0 +1,250 @@
+** API Reference
+*** System
+- =width=, =height= The width and height of the screen
+
+- =frame_count= The number of the elapsed frames
+
+- =init(width, height, [title], [fps], [quit_key], [display_scale], [capture_scale], [capture_sec])=
+  Initialize the Pyxel application with screen size (=width=, =height=).
+  The following can be specified as options: the window title with
+  =title=, the frame rate with =fps=, the key to quit the application
+  with =quit_key=, the scale of the display with =display_scale=, the
+  scale of the screen capture with =capture_scale=, and the maximum
+  recording time of the screen capture video with =capture_sec=.
+  e.g. =pyxel.init(160, 120, title="My Pyxel App", fps=60, quit_key=pyxel.KEY_NONE, capture_scale=3, capture_sec=0)=
+
+- =run(update, draw)= Start the Pyxel application and call =update=
+  function for frame update and =draw= function for drawing.
+
+- =show()= Show the screen and wait until the =Esc= key is pressed.
+
+- =flip()= Refrech the screen by one frame. The application exits when
+  the =Esc= key is pressed. This function only works on non-web
+  platforms.
+
+- =quit()= Quit the Pyxel application.
+
+*** Resource
+- =load(filename, [image], [tilemap], [sound], [music])= Load the
+  resource file (.pyxres). If =False= is specified for the resource type
+  (=image/tilemap/sound/music=), the resource will not be loaded. If a
+  palette file (.pyxpal) of the same name exists in the same location as
+  the resource file, the palette display color will also be changed. The
+  palette file is a hexadecimal entry of the display colors, separated
+  by newlines. The palette file can also be used to change the colors
+  displayed in Pyxel Editor.
+
+*** Input
+- =mouse_x=, =mouse_y= The current position of the mouse cursor
+
+- =mouse_wheel= The current value of the mouse wheel
+
+- =btn(key)= Return =True= if =key= is pressed, otherwise return
+  =False=. ([[file:python/pyxel/__init__.pyi][Key definition list]])
+
+- =btnp(key, [hold], [repeat])= Return =True= if =key= is pressed at
+  that frame, otherwise return =False=. When =hold= and =repeat= are
+  specified, =True= will be returned at the =repeat= frame interval when
+  the =key= is held down for more than =hold= frames.
+
+- =btnr(key)= Return =True= if =key= is released at that frame,
+  otherwise return =False=.
+
+- =mouse(visible)= If =visible= is =True=, show the mouse cursor. If
+  =False=, hide it. Even if the mouse cursor is not displayed, its
+  position is updated.
+
+*** Graphics
+- =colors= List of the palette display colors. The display color is
+  specified by a 24-bit numerical value. Use =colors.from_list= and
+  =colors.to_list= to directly assign and retrieve Python lists.
+  e.g. =old_colors = pyxel.colors.to_list(); pyxel.colors.from_list([0x111111, 0x222222, 0x333333]); pyxel.colors[15] = 0x112233=
+
+- =image(img)= Operate the image bank =img= (0-2). (See the Image class)
+  e.g. =pyxel.image(0).load(0, 0, "title.png")=
+
+- =tilemap(tm)= Operate the tilemap =tm= (0-7). (See the Tilemap class)
+
+- =clip(x, y, w, h)= Set the drawing area of the screen from (=x=, =y=)
+  to width =w= and height =h=. Reset the drawing area to full screen
+  with =clip()=.
+
+- =camera(x, y)= Change the upper left corner coordinates of the screen
+  to (=x=, =y=). Reset the upper left corner coordinates to (=0=, =0=)
+  with =camera()=.
+
+- =pal(col1, col2)= Replace color =col1= with =col2= at drawing. =pal()=
+  to reset to the initial palette.
+
+- =cls(col)= Clear screen with color =col=.
+
+- =pget(x, y)= Get the color of the pixel at (=x=, =y=).
+
+- =pset(x, y, col)= Draw a pixel of color =col= at (=x=, =y=).
+
+- =line(x1, y1, x2, y2, col)= Draw a line of color =col= from (=x1=,
+  =y1=) to (=x2=, =y2=).
+
+- =rect(x, y, w, h, col)= Draw a rectangle of width =w=, height =h= and
+  color =col= from (=x=, =y=).
+
+- =rectb(x, y, w, h, col)= Draw the outline of a rectangle of width =w=,
+  height =h= and color =col= from (=x=, =y=).
+
+- =circ(x, y, r, col)= Draw a circle of radius =r= and color =col= at
+  (=x=, =y=).
+
+- =circb(x, y, r, col)= Draw the outline of a circle of radius =r= and
+  color =col= at (=x=, =y=).
+
+- =elli(x, y, w, h, col)= Draw an ellipse of width =w=, height =h= and
+  color =col= from (=x=, =y=).
+
+- =ellib(x, y, w, h, col)= Draw the outline of an ellipse of width =w=,
+  height =h= and color =col= from (=x=, =y=).
+
+- =tri(x1, y1, x2, y2, x3, y3, col)= Draw a triangle with vertices
+  (=x1=, =y1=), (=x2=, =y2=), (=x3=, =y3=) and color =col=.
+
+- =trib(x1, y1, x2, y2, x3, y3, col)= Draw the outline of a triangle
+  with vertices (=x1=, =y1=), (=x2=, =y2=), (=x3=, =y3=) and color
+  =col=.
+
+- =fill(x, y, col)= Fill the area connected with the same color as (=x=,
+  =y=) with color =col=.
+
+- =blt(x, y, img, u, v, w, h, [colkey])= Copy the region of size (=w=,
+  =h=) from (=u=, =v=) of the image bank =img= (0-2) to (=x=, =y=). If
+  negative value is set for =w= and/or =h=, it will reverse horizontally
+  and/or vertically. If =colkey= is specified, treated as transparent
+  color.
+
+- =bltm(x, y, tm, u, v, w, h, [colkey])= Copy the region of size (=w=,
+  =h=) from (=u=, =v=) of the tilemap =tm= (0-7) to (=x=, =y=). If
+  negative value is set for =w= and/or =h=, it will reverse horizontally
+  and/or vertically. If =colkey= is specified, treated as transparent
+  color. The size of a tile is 8x8 pixels and is stored in a tilemap as
+  a tuple of =(tile_x, tile_y)=.
+
+- =text(x, y, s, col)= Draw a string =s= of color =col= at (=x=, =y=).
+
+*** Audio
+- =sound(snd)= Operate the sound =snd= (0-63). (See the Sound class)
+  e.g. =pyxel.sound(0).speed = 60=
+
+- =music(msc)= Operate the music =msc= (0-7). (See the Music class)
+
+- =play_pos(ch)= Get the sound playback position of channel =ch= (0-3)
+  as a tuple of =(sound no, note no)=. Returns =None= when playback is
+  stopped.
+
+- =play(ch, snd, [tick], [loop])= Play the sound =snd= (0-63) on channel
+  =ch= (0-3). If =snd= is a list, it will be played in order. The
+  playback start position can be specified by =tick= (1 tick = 1/120
+  seconds). If =True= is specified for =loop=, loop playback is
+  performed.
+
+- =playm(msc, [tick], [loop])= Play the music =msc= (0-7). The playback
+  start position can be specified by =tick= (1 tick = 1/120 seconds). If
+  =True= is specified for =loop=, loop playback is performed.
+
+- =stop([ch])= Stops playback of the specified channel =ch= (0-3).
+  =stop()= to stop playing all channels.
+
+*** Math
+- =ceil(x)= Returns the smallest integer greater than or equal to =x=.
+
+- =floor(x)= Returns the largest integer less than or equal to =x=.
+
+- =sgn(x)= Returns 1 when =x= is positive, 0 when it is zero, and -1
+  when it is negative.
+
+- =sqrt(x)= Returns the square root of =x=.
+
+- =sin(deg)= Returns the sine of =deg= degrees.
+
+- =cos(deg)= Returns the cosine of =deg= degrees.
+
+- =atan2(y, x)= Returns the arctangent of =y=/=x= in degrees.
+
+- =rseed(seed: int)= Sets the seed of the random number generator.
+
+- =rndi(a, b)= Returns an random integer greater than or equal to =a=
+  and less than or equal to =b=.
+
+- =rndf(a, b)= Returns a random decimal greater than or equal to =a= and
+  less than or equal to =b=.
+
+- =nseed(seed)= Sets the seed of Perlin noise.
+
+- =noise(x, [y], [z])= Returns the Perlin noise value for the specified
+  coordinates.
+
+*** Image Class
+- =width=, =height= The width and height of the image
+
+- =set(x, y, data)= Set the image at (=x=, =y=) by a list of strings.
+  e.g. =pyxel.image(0).set(10, 10, ["0123", "4567", "89ab", "cdef"])=
+
+- =load(x, y, filename)= Load the image file (png/gif/jpeg) at (=x=,
+  =y=).
+
+- =pget(x, y)= Get the pixel color at (=x=, =y=).
+
+- =pset(x, y, col)= Draw a pixel of color =col= at (=x=, =y=).
+
+*** Tilemap Class
+- =width=, =height= The width and height of the tilemap
+
+- =refimg= The image bank (0-2) referenced by the tilemap
+
+- =set(x, y, data)= Set the tilemap at (=x=, =y=) by a list of strings.
+  e.g. =pyxel.tilemap(0).set(0, 0, ["0000 0100 a0b0", "0001 0101 a1b1"])=
+
+- =pget(x, y)= Get the tile at (=x=, =y=). A tile is a tuple of
+  =(tile_x, tile_y)=.
+
+- =pset(x, y, tile)= Draw a =tile= at (=x=, =y=). A tile is a tuple of
+  =(tile_x, tile_y)=.
+
+*** Sound Class
+- =notes= List of notes (0-127). The higher the number, the higher the
+  pitch, and at 33 it becomes 'A2'(440Hz). The rest is -1.
+
+- =tones= List of tones (0:Triangle / 1:Square / 2:Pulse / 3:Noise)
+
+- =volumes= List of volumes (0-7)
+
+- =effects= List of effects (0:None / 1:Slide / 2:Vibrato / 3:FadeOut)
+
+- =speed= Playback speed. 1 is the fastest, and the larger the number,
+  the slower the playback speed. At 120, the length of one note becomes
+  1 second.
+
+- =set(notes, tones, volumes, effects, speed)= Set notes, tones,
+  volumes, and effects with a string. If the tones, volumes, and effects
+  length are shorter than the notes, it is repeated from the beginning.
+
+- =set_notes(notes)= Set the notes with a string made of
+  'CDEFGAB'+'#-'+'0123' or 'R'. Case-insensitive and whitespace is
+  ignored. e.g. =pyxel.sound(0).set_notes("G2B-2D3R RF3F3F3")=
+
+- =set_tones(tones)= Set the tones with a string made of 'TSPN'.
+  Case-insensitive and whitespace is ignored.
+  e.g. =pyxel.sound(0).set_tones("TTSS PPPN")=
+
+- =set_volumes(volumes)= Set the volumes with a string made of
+  '01234567'. Case-insensitive and whitespace is ignored.
+  e.g. =pyxel.sound(0).set_volumes("7777 7531")=
+
+- =set_effects(effects)= Set the effects with a string made of 'NSVF'.
+  Case-insensitive and whitespace is ignored.
+  e.g. =pyxel.sound(0).set_effects("NFNF NVVS")=
+
+*** Music Class
+- =snds_list= Two-dimensional list of sounds (0-63) with the number of
+  channels
+
+- =set(snds0, snds1, snds2, snds3)= Set the lists of sound (0-63) of all
+  channels. If an empty list is specified, that channel is not used for
+  playback. e.g. =pyxel.music(0).set([0, 1], [2, 3], [4], [])=
