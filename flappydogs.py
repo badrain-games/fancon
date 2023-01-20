@@ -11,3 +11,5 @@ class App:
 
     def draw(self):
         pyxel.cls(12)
+
+App()
