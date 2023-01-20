@@ -1,0 +1,4 @@
+** What do we want from a proper visual/audio workflow
+*** Symmetry mode for drawing pixels
+*** Be able to import animations so we can use Aseprite
+*** Backspace/delete to clear selected area in Tilemap
