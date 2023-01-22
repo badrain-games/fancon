@@ -5,7 +5,7 @@ player_x = 60
 jump_boost = 1.93
 gravity = 0.139
 fork_speed = 1
-fork_spawn_interval = 50
+fork_spawn_interval = 70
 fork_spawn_count = 8
 fork_midgap = 50
 
@@ -54,6 +54,7 @@ class App:
 
     def draw(self):
         pyxel.cls(12)
+        pyxel.blt(0, 0, 0, 16, 0, 32, 32)
         for fork_x,fork_y in self.forks:
             for i in range(6):
                 pyxel.blt(fork_x, fork_y - (16 * (i + 1)), 0, 0, 64, 16, 16, 0)
@@ -62,7 +63,10 @@ class App:
             pyxel.blt(fork_x, fork_y + fork_midgap, 0, 0, 48, 16, 16, 0)
             for i in range(6):
                 pyxel.blt(fork_x, fork_y + fork_midgap + (16 * (i + 1)), 0, 0, 64, 16, 16, 0)
-        pyxel.blt(player_x, self.player_y, 0, 0, 32, 16, 16, 0)
+        if self.player_dy < 0:
+            pyxel.blt(player_x, self.player_y, 0, 0, 32, 16, 16, 0)
+        else:
+            pyxel.blt(player_x, self.player_y, 0, 16, 32, 16, 16, 0)
         pyxel.text(5, 5, "Flappy Dogs", 1)
 
 App()
