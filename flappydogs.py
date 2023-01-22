@@ -63,10 +63,8 @@ class App:
             pyxel.blt(fork_x, fork_y + fork_midgap, 0, 0, 48, 16, 16, 0)
             for i in range(6):
                 pyxel.blt(fork_x, fork_y + fork_midgap + (16 * (i + 1)), 0, 0, 64, 16, 16, 0)
-        if self.player_dy < 0:
-            pyxel.blt(player_x, self.player_y, 0, 0, 32, 16, 16, 0)
-        else:
-            pyxel.blt(player_x, self.player_y, 0, 16, 32, 16, 16, 0)
+        u = 16 if self.player_dy > 0 else 0
+        pyxel.blt(player_x, self.player_y, 0, u, 32, 16, 16, 0)
         pyxel.text(5, 5, "Flappy Dogs", 1)
 
 App()
