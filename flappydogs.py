@@ -65,7 +65,7 @@ class App:
 
     def draw(self):
         pyxel.cls(12)
-        pyxel.blt(0, 0, 0, sprite_size, 0, 32, 32)
+        pyxel.blt(0, 0, 1, 0, 0, 160, 160)
         for fork_x,fork_y in self.forks:
             for i in range(6):
                 pyxel.blt(fork_x, fork_y - (sprite_size * (i + 1)), 0, 0, 64, sprite_size, sprite_size, 0)
