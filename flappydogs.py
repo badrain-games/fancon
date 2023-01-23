@@ -19,13 +19,22 @@ class App:
         pyxel.load("Assets/flappydogs.pyxres")
 
         self.player_y = 30
-        self.player_dy = jump_boost
+        self.player_dy = 1
         self.death_count = 0
         self.forks = [(-sprite_size, get_random_height()) for i in range(8)]
         self.fork_spawn_idx = 0
         self.debug = True
 
         pyxel.run(self.update, self.draw)
+
+    def reset(self):
+        self.player_y = 30
+        self.player_dy = 1
+        self.death_count = 0
+        self.fork_spawn_idx = 0
+        for i in range(len(self.forks)):
+            self.forks[i] = (-sprite_size, get_random_height())
+
 
     def update(self):
         if pyxel.btnp(pyxel.KEY_Q):
@@ -60,7 +69,7 @@ class App:
                 or (pright > x and pright < x + sprite_size))
                 and (self.player_y + 5 < y + sprite_size or
                      self.player_y + sprite_size - 5 > y + fork_midgap)):
-                self.death_count += 1
+                self.reset()
 
 
     def draw(self):
@@ -74,6 +83,7 @@ class App:
             pyxel.blt(fork_x, fork_y + fork_midgap, 0, 0, 48, sprite_size, sprite_size, 0)
             for i in range(6):
                 pyxel.blt(fork_x, fork_y + fork_midgap + (sprite_size * (i + 1)), 0, 0, 64, sprite_size, sprite_size, 0)
+
         u = sprite_size if self.player_dy > 0 else 0
         pyxel.blt(player_x, self.player_y, 0, u, 32, sprite_size, sprite_size, 0)
         pyxel.text(5, 5, "Flappy Dogs", 1)
