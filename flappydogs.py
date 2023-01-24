@@ -20,21 +20,20 @@ class App:
 
         self.player_y = 30
         self.player_dy = 1
-        self.death_count = 0
-        self.forks = [(-sprite_size, get_random_height()) for i in range(8)]
+        self.score = 0
+        self.forks = [(-sprite_size, get_random_height(), True) for i in range(8)]
         self.fork_spawn_idx = 0
-        self.debug = True
+        self.debug = False
 
         pyxel.run(self.update, self.draw)
 
     def reset(self):
         self.player_y = 30
         self.player_dy = 1
-        self.death_count = 0
+        self.score = 0
         self.fork_spawn_idx = 0
         for i in range(len(self.forks)):
-            self.forks[i] = (-sprite_size, get_random_height())
-
+            self.forks[i] = (-sprite_size, get_random_height(), True)
 
     def update(self):
         if pyxel.btnp(pyxel.KEY_Q):
@@ -55,14 +54,20 @@ class App:
             fork_spawn_reset = self.fork_spawn_idx
             self.fork_spawn_idx = (self.fork_spawn_idx + 1) % fork_spawn_count
 
-        for i,(x,y) in enumerate(self.forks):
+        for i,(x,y,passed) in enumerate(self.forks):
             x_ = x - fork_speed
             if fork_spawn_reset == i:
                 x_ = pyxel.width + sprite_size
                 y = get_random_height()
-            self.forks[i] = (x_, y)
+                passed = False
+            if x_ + sprite_size < player_x and not passed:
+                self.forks[i] = (x_, y, True)
+                self.score += 1
+            else:
+                self.forks[i] = (x_, y, passed)
+                
 
-        for (x,y) in self.forks:
+        for (x,y,passed) in self.forks:
             pright = player_x + sprite_size - 2
             player_height = sprite_size // 2
             if (((player_x + 2 > x and player_x + 2 < x + sprite_size)
@@ -75,7 +80,7 @@ class App:
     def draw(self):
         pyxel.cls(12)
         pyxel.blt(0, 0, 1, 0, 0, 160, 160)
-        for fork_x,fork_y in self.forks:
+        for fork_x,fork_y,passed in self.forks:
             for i in range(6):
                 pyxel.blt(fork_x, fork_y - (sprite_size * (i + 1)), 0, 0, 64, sprite_size, sprite_size, 0)
             pyxel.blt(fork_x, fork_y, 0, 0, 80, sprite_size, sprite_size, 0)
@@ -86,7 +91,7 @@ class App:
 
         u = sprite_size if self.player_dy > 0 else 0
         pyxel.blt(player_x, self.player_y, 0, u, 32, sprite_size, sprite_size, 0)
-        pyxel.text(5, 5, "Flappy Dogs", 1)
+        pyxel.text(5, 5, f"Score {self.score}", 1)
         if self.debug:
             pyxel.text(5, 15, str(self.player_y), 1)
             pyxel.text(5, 25, f"Dead Count: {self.death_count}", 8)
