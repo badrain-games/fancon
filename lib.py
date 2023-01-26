@@ -13,11 +13,24 @@ class RectPos(enum.Enum):
     BottomLeft = 2
     BottomRight = 3
     Center = 4
+    MidTop = 5
+    MidBottom = 6
+    MidLeft = 7
+    MidRight = 8
 
-def rect_contains(rect, point):
+def rect_has_point(rect, point):
     rx,ry,w,h = rect
     x,y = point
-    return x > rx and x < rx + w and y > ry and y < ry + h
+    return x >= rx and x <= rx + w and y >= ry and y <= ry + h
+
+def rect_overlaps(r1, r2):
+    r1x,r1y,r1w,r1h = r1
+    r2x,r2y,r2w,r2h = r2
+    if ((r1x > r2x and r1x < r2x + r2w and r1y > r2y and r1y < r2y + r2h)
+        or
+        (r2x > r2x and r1x < r2x + r2w and r1y > r2y and r1y < r2y + r2h)):
+        return True
+
 
 def rect_point(point, rect):
     x,y,w,h = rect
@@ -32,4 +45,11 @@ def rect_point(point, rect):
             return (x+w,y+h)
         case RectPos.Center:
             return (x+w/2,y+h/2)
-
+        case RectPos.MidTop:
+            return (x+w/2,y)
+        case RectPos.MidBottom:
+            return (x+w/2,y+h)
+        case RectPos.MidLeft:
+            return (x,y+h/2)
+        case RectPos.MidRight:
+            return (x+w,y+h/2)
