@@ -9,7 +9,7 @@ fork_speed = 1
 tree_speed = 1
 fork_spawn_interval = 70
 fork_spawn_count = 8
-tree_spawn_count = 7
+tree_spawn_count = 6
 fork_midgap = 50
 
 def get_random_height():
@@ -37,6 +37,9 @@ class App:
         self.fork_spawn_idx = 0
         for i in range(len(self.forks)):
             self.forks[i] = (-sprite_size, get_random_height(), True)
+
+        for i in range(len(self.trees)):
+            self.trees[i] = (i * 32, pyxel.height - 32)
 
     def update(self):
         if pyxel.btnp(pyxel.KEY_Q):
@@ -69,7 +72,7 @@ class App:
             else:
                 self.forks[i] = (x_, y, passed)
 
-
+        # Collision Check
         for (x,y,passed) in self.forks:
             pright = player_x + sprite_size - 2
             player_height = sprite_size // 2
@@ -79,10 +82,18 @@ class App:
                      self.player_y + sprite_size - 5 > y + fork_midgap)):
                 self.reset()
 
-        for i,(x, y) in enumerate (self.trees):
-            x_ = x - tree_speed
-            if x_ + 32 < player_x:
+        # Loop trees
+        if pyxel.frame_count % 2 == 0:
+            for i,(x, y) in enumerate (self.trees):
+                x_ = x - tree_speed
+                if x_ <= -32:
+                    if i == 0:
+                        x_ = self.trees[(i - 1) % tree_spawn_count][0] + 32 - tree_speed
+                    else:
+                        x_ = self.trees[(i - 1) % tree_spawn_count][0] + 32
+
                 self.trees[i] = (x_, y)
+
 
 
     def draw(self):
