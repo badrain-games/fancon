@@ -18,6 +18,16 @@ class RectPos(enum.Enum):
     MidLeft = 7
     MidRight = 8
 
+tiles = ([(0,-8), (-8,0),(8,0), (0,8)])
+
+def get_surrounding_tiles(tile_map, tx,ty):
+    def get_tile_info(xy):
+        x = tx + xy[0]
+        y = ty + xy[1]
+        t = pyxel.tilemap(tile_map).pget(x // 8, y // 8)[1]
+        return (x // 8 * 8,y // 8 * 8,t)
+    return list(map(get_tile_info, tiles))
+
 def rect_has_point(rect, point):
     rx,ry,w,h = rect
     x,y = point
@@ -30,7 +40,6 @@ def rect_overlaps(r1, r2):
         or
         (r2x > r2x and r1x < r2x + r2w and r1y > r2y and r1y < r2y + r2h)):
         return True
-
 
 def rect_point(point, rect):
     x,y,w,h = rect
