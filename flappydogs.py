@@ -92,10 +92,11 @@ class App:
             for i,(x, y) in enumerate (self.trees):
                 x_ = x - tree_speed
                 if x_ <= -32:
-                    if i == 0:
-                        x_ = self.trees[(i - 1) % tree_spawn_count][0] + 32 - tree_speed
-                    else:
-                        x_ = self.trees[(i - 1) % tree_spawn_count][0] + 32
+                    # When wrapping around from index 0 to 5, we update the
+                    # x positions out of order so we need to predict index 5's
+                    # position by adding the tree_speed
+                    wrap_around = tree_speed if i == 0 else 0
+                    x_ = self.trees[(i - 1) % tree_spawn_count][0] + 32 - wrap_around
 
                 self.trees[i] = (x_, y)
 
