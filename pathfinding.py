@@ -36,20 +36,36 @@ def generate_graph():
             if not is_boundary(col * 8, row * 8):
                 tiles = lib.get_surrounding_tiles(0, col*8+1, row*8+1)
                 filtered = filter(lambda xyt: xyt[2] == 1, tiles)
-                mapped = map(lambda xyt: (xyt[1],xyt[0]), filtered)
-                graph[row * 16 + col] = list(mapped)
+                edges = list(map(lambda xyt: (xyt[1]//8,xyt[0]//8), filtered))
+                graph[row * 16 + col] = (edges,False)
     return graph
+
+def find_path(start_node, target_node):
+    visited = start_node[1] 
+    if start_node == target_node:
+        return [target_node]
+    elif visited:
+        return []
+    else:
+        for n in start_node[0]:
+            end_node = find_path(n, target_node)
+            if end_node:
+                return [start_node] + end_node
+
+def debug_print_nodes():
+    for i,node in enumerate(map_graph):
+        if node and node[0]:
+            print(f"Tile at {i // 16+1},{(i % 16)+1}:")
+            for edge in node[0]:
+                print("\t", f"({edge[0]+1},{edge[1]+1})")
 
 def init():
     pyxel.init(128,128, title="Pathfinding", fps=60, display_scale=4)
     pyxel.load("Assets/pathfinding.pyxres")
 
+    global map_graph 
+
     map_graph = generate_graph()
-    for i,node in enumerate(map_graph):
-        if node:
-            print(f"Tile at {i // 16+1},{(i % 16)+1}:")
-            for edge in node:
-                print("\t", f"({edge[0]//8+1},{edge[1]//8+1})")
     world.player_pos = pyxel.width // 2 - 12, pyxel.height // 2 - 12
     pyxel.run(update, draw)
 
@@ -98,13 +114,19 @@ def update():
     if pyxel.btnp(pyxel.MOUSE_BUTTON_LEFT):
         world.mouse_click = pyxel.mouse_x, pyxel.mouse_y
 
+        player_node = map_graph[int(py // 8 * 16 + px // 8 % 16)]
+        target_node = map_graph[pyxel.mouse_y // 8 * 16 + (pyxel.mouse_x // 8 % 16)]
+        p = find_path(player_node, target_node)
+        print(p)
+                  
+
+
     world.player_pos = px,py
     if x != 0:
         world.player_dir = 1 if x > 0 else -1
     world.player_state = "Moving" if x != 0 or y != 0 else "Idle"
 
 def mark_tiles(tiles):
-    print(tiles)
     for t in tiles:
         pyxel.rect(t[0]+3, t[1]+3, 2, 2, 7)
 
@@ -122,7 +144,6 @@ def draw():
     if world.mouse_click is not None:
         mx,my = world.mouse_click
         mark_tiles(lib.get_surrounding_tiles(0,mx,my))
-
 
     # tx,ty = pyxel.tilemap(0).pget(pyxel.mouse_x // 8, pyxel.mouse_y // 8)
     # pyxel.text(5,3, f"Tile at {pyxel.mouse_y // 8+1}, {pyxel.mouse_x // 8+1}: {tx},{ty}", 7)
