@@ -84,13 +84,15 @@ class App:
             colyt = self.player_y + 5 < y + sprite_size
             colyb = self.player_y + sprite_size - 5 > y + fork_midgap
             if ((colxl or colxr) and (colyt or colyb)):
+                forky = y if colyt else y + fork_midgap
                 half = sprite_size // 2
                 pcx,pcy = player_x + half, self.player_y + half
-                fcx,fcy = x + half, y + half
+                fcx,fcy = x + half, forky + half
                 distx = round(pcx - fcx)
                 disty = round(pcy - fcy)
                 dir = pyxel.atan2(distx, disty)
-                if dir > -10:
+                print(dir)
+                if (dir > -35 and colyt) or ((dir < -140 or dir > 120) and colyb):
                     self.player_state = "Dead_Impaled"
                 else:
                     self.player_state = "Dead_Crashed"
