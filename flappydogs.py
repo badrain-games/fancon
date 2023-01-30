@@ -28,6 +28,7 @@ class App:
         self.fork_spawn_idx = 0
         self.trees = [(i * 32, pyxel.height - 32) for i in range(tree_spawn_count)]
         self.sploosh_anims = []
+        self.player_state = "Playing"
         self.debug = False
 
         pyxel.run(self.update, self.draw)
@@ -36,6 +37,7 @@ class App:
         self.player_y = 30
         self.player_dy = 1
         self.score = 0
+        self.player_state = "Playing"
         self.fork_spawn_idx = 0
         for i in range(len(self.forks)):
             self.forks[i] = (-sprite_size, get_random_height(), True)
@@ -43,10 +45,7 @@ class App:
         for i in range(len(self.trees)):
             self.trees[i] = (i * 32, pyxel.height - 32)
 
-    def update(self):
-        if pyxel.btnp(pyxel.KEY_Q):
-            pyxel.quit()
-
+    def game_update(self):
         if pyxel.btn(pyxel.KEY_SPACE):
             self.player_dy = jump_boost
 
@@ -56,8 +55,8 @@ class App:
         self.player_dy -= gravity
         self.player_y -= self.player_dy
 
-        if self.player_y > pyxel.height:
-            self.is_dead = True
+        if self.player_y + sprite_size >= pyxel.height:
+            self.player_state = "Dead"
 
         # Check if we need to spawn a new fork
         fork_spawn_reset = -1
@@ -80,12 +79,21 @@ class App:
         # Collision Check
         for (x,y,passed) in self.forks:
             pright = player_x + sprite_size - 2
-            player_height = sprite_size // 2
-            if (((player_x + 2 > x and player_x + 2 < x + sprite_size)
-                or (pright > x and pright < x + sprite_size))
-                and (self.player_y + 5 < y + sprite_size or
-                     self.player_y + sprite_size - 5 > y + fork_midgap)):
-                self.reset()
+            colxl = player_x + 2 > x and player_x + 2 < x + sprite_size
+            colxr = pright > x and pright < x + sprite_size
+            colyt = self.player_y + 5 < y + sprite_size
+            colyb = self.player_y + sprite_size - 5 > y + fork_midgap
+            if ((colxl or colxr) and (colyt or colyb)):
+                half = sprite_size // 2
+                pcx,pcy = player_x + half, self.player_y + half
+                fcx,fcy = x + half, y + half
+                distx = round(pcx - fcx)
+                disty = round(pcy - fcy)
+                dir = pyxel.atan2(distx, disty)
+                if dir > -10:
+                    self.player_state = "Dead_Impaled"
+                else:
+                    self.player_state = "Dead_Crashed"
 
         # Loop trees
         if pyxel.frame_count % 2 == 0:
@@ -103,6 +111,26 @@ class App:
         for i,(x,y,fc) in enumerate(self.sploosh_anims):
             self.sploosh_anims[i] = x - sploosh_speed,y,fc
 
+    def dead_update(self):
+        if pyxel.btnp(pyxel.KEY_R):
+            self.reset()
+
+        if self.player_state == "Dead_Crashed":
+            if self.player_y < pyxel.height + sprite_size:
+                self.player_dy -= gravity
+                self.player_y -= self.player_dy
+        # elif self.player_state == "Dead_Impaled":
+            # if self.player_y < pyxel.height + sprite_size:
+            #     self.player_y += 0.1
+
+    def update(self):
+        if pyxel.btnp(pyxel.KEY_Q):
+            pyxel.quit()
+
+        if self.player_state == "Playing":
+            self.game_update()
+        elif self.player_state.startswith("Dead"):
+            self.dead_update()
 
     def draw(self):
         pyxel.cls(12)
