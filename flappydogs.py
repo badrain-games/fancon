@@ -116,7 +116,7 @@ class App:
         for fork_x,fork_y,passed in self.forks:
             for i in range(6):
                 pyxel.blt(fork_x, fork_y - (sprite_size * (i + 1)), 0, 0, 64, sprite_size, sprite_size, 0)
-            pyxel.blt(fork_x, fork_y, 0, 0, 80, sprite_size, sprite_size, 0)
+            pyxel.blt(fork_x, fork_y, 0, 0, 48, sprite_size, -sprite_size, 0)
 
             pyxel.blt(fork_x, fork_y + fork_midgap, 0, 0, 48, sprite_size, sprite_size, 0)
             for i in range(6):
