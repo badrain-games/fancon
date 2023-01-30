@@ -92,7 +92,7 @@ class App:
                 disty = round(pcy - fcy)
                 dir = pyxel.atan2(distx, disty)
                 print(dir)
-                if (dir > -35 and colyt) or ((dir < -140 or dir > 120) and colyb):
+                if ((dir > -35 or dir < 40) and colyt) or ((dir < -140 or dir > 120) and colyb):
                     self.player_state = "Dead_Impaled"
                 else:
                     self.player_state = "Dead_Crashed"
