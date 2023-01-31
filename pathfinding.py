@@ -1,5 +1,6 @@
 import pyxel
 import random
+from collections import deque
 import lib
 from lib import RectPos
 from dataclasses import dataclass
@@ -61,9 +62,6 @@ def get_node_at(row,col):
     idx = int(row * 16 + col)
     return map_graph[idx]
 
-def set_node_at(row,col,val):
-    map_graph[int(col // 8 * 16 + col // 8 % 16)]
-
 def dfs(current_node, target_node):
     if current_node == target_node:
         return [target_node]
@@ -76,6 +74,37 @@ def dfs(current_node, target_node):
             end_node = dfs(nn, target_node)
             if end_node:
                 return [current_node] + end_node
+
+def bfs(start_node, target_node):
+    if start_node == target_node:
+        return [target_node]
+
+    q = deque()
+    q.append(start_node)
+    hierarchy = [None] * len(map_graph)
+    path = []
+    found = False
+    while q and not found:
+        n = q.popleft()
+        if n == target_node:
+            current = n
+            path.append(n)
+            while True:
+                parent = hierarchy[current.index[0] * 16 + current.index[1]]
+                if parent:
+                    path.append(parent)
+                    current = parent
+                else:
+                    found = True
+                    break
+        else:
+            n.visited = True
+            for erow,ecol in n.edges:
+                edge_node = get_node_at(erow,ecol)
+                if not edge_node.visited:
+                    hierarchy[int(erow * 16 + ecol)] = n
+                    q.append(edge_node)
+    return path
 
 def init():
     pyxel.init(128,128, title="Pathfinding", fps=60, display_scale=4)
@@ -162,6 +191,10 @@ def draw():
 
     # pcx,pcy = lib.rect_point(RectPos.Center, (px,py,8,8))
     # mark_tiles(lib.get_surrounding_tiles(0,pcx,pcy))
+
+    for n in map_graph:
+        if n and n.visited:
+            pyxel.rect(n.index[1]*8+3, n.index[0]*8+3, 2, 2, 8)
 
     for n in world.path:
         pyxel.rect(n.index[1]*8+3, n.index[0]*8+3, 2, 2, 7)
