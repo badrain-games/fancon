@@ -56,7 +56,7 @@ class App:
         self.player_y -= self.player_dy
 
         if self.player_y + sprite_size >= pyxel.height:
-            self.player_state = "Dead"
+            self.player_state = "Dead_Crashed"
 
         # Check if we need to spawn a new fork
         fork_spawn_reset = -1
