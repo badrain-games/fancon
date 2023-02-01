@@ -1,5 +1,6 @@
 import pyxel
 import random
+import lib
 
 player_x = 60
 sprite_size = 16
@@ -197,6 +198,7 @@ class App:
             pyxel.text(5, 15, str(self.player_y), 1)
             pyxel.text(5, 35, f"Anims {len(self.sploosh_anims)}", 8)
 
-        self.draw9s()
+        # self.draw9s()
+        lib.draw9s(25, 25, 0, 112, 100, 120, 7, 7, 8)
 
 App()
