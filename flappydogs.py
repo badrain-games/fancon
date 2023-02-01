@@ -135,34 +135,6 @@ class App:
         elif self.player_state.startswith("Dead"):
             self.dead_update()
 
-    def draw9s(self):
-        cwidth = 110
-        cheight = 120
-        offset = 25
-        # TL
-        pyxel.blt(offset, offset, 0, 0, 112, 8, 8, 8)
-        # TR
-        pyxel.blt(cwidth + offset, offset, 0, 8, 112, 8, 8, 8)
-        # BL
-        pyxel.blt(offset, cheight + offset, 0, 0, 120, 8, 8, 8)
-        # BR
-        pyxel.blt(cwidth + offset, cheight + offset, 0, 8, 120, 8, 8, 8)
-
-        # Vertical Rect
-        pyxel.rect(offset + 8, offset + 2, cwidth - 8, cheight + 4, 1)
-        # Horizontal Rect
-        pyxel.rect(offset + 2, offset + 8, cwidth + 4, cheight - 8, 1)
-
-        # Top Line
-        pyxel.line(offset + 8, offset + 1, cwidth + offset, offset + 1, 7)
-        # Bottom Line
-        pyxel.line(offset + 8, cheight + offset + 6, cwidth + offset, cheight + offset + 6, 7)
-        pyxel.line(offset + 8, cheight + offset + 7, cwidth + offset, cheight + offset + 7, 13)
-         # Left Line
-        pyxel.line(offset + 1, offset + 8, offset + 1, cheight + offset + 1, 7)
-         # Right Line
-        pyxel.line(cwidth + offset + 6, offset + 8, cwidth + offset + 6, cheight + offset + 1, 7)
-
     def draw(self):
         pyxel.cls(12)
         pyxel.blt(0, 0, 1, 0, 0, 160, 160)
@@ -198,8 +170,6 @@ class App:
             pyxel.text(5, 15, str(self.player_y), 1)
             pyxel.text(5, 35, f"Anims {len(self.sploosh_anims)}", 8)
 
-        # self.draw9s()
-        # lib.draw9s(25, 25, 0, 112, 100, 120, 8, 8, 8)
         lib.draw9s(25, 25, 32, 112, 100, 120, 8, 12, 8)
 
 App()
