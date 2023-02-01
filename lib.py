@@ -15,39 +15,42 @@ def normalize(x, y):
     m = mag(x, y)
     return (x/m, y/m)
 
-def draw9s(x, y, u, v, w, h, cx, cy, transparency_color):
+def draw9s(x, y, u, v, w, h, cx, cy, tc):
+    w2 = 16-cx
+    h2 = 16-cy
     # TL Corner
-    pyxel.blt(x, y, 0, u, v, 8, 8, 8)
+    pyxel.blt(x, y, 0, u, v, cx, cy, tc)
     # TR Corner
-    pyxel.blt(x + w - 8, y, 0, u + 8, v, 8, 8, 8)
+    pyxel.blt(x + w - w2, y, 0, u + cx, v, w2, cy, tc)
     # BL Corner
-    pyxel.blt(x, y + h - 8, 0, u, v + 8, 8, 8, 8)
+    pyxel.blt(x, y + h - h2, 0, u, v + cy, cx, h2, tc)
     # BR Corner
-    pyxel.blt(x + w - 8, y + h - 8, 0, u + 8, v + 8, 8, 8, 8)
+    pyxel.blt(x + w - w2, y + h - h2, 0, u + cx, v + cy, w2, h2, tc)
 
-    # Top Line
-    for p in range(8):
-        color = pyxel.image(0).pget(u + p, v + 7)
-        if color != transparency_color:
-            pyxel.line(x+p, y+8, x+p, y+h-9, color)
     # Left Line
-    for p in range(8):
-        color = pyxel.image(0).pget(u+7, v+p)
-        if color != transparency_color:
-            pyxel.line(x+8, y+p, x+w-8, y+p, color)
+    for p in range(cx):
+        color = pyxel.image(0).pget(u + p, v + cy-1)
+        if color != tc:
+            pyxel.line(x+p, y+cy, x+p, y+h-h2-1, color)
+    # Top Line
+    for p in range(cy):
+        color = pyxel.image(0).pget(u+cx-1, v+p)
+        if color != tc:
+            pyxel.line(x+cx, y+p, x+w-w2-1, y+p, color)
     # Bottom Line
-    for p in range(8):
-        color = pyxel.image(0).pget(u+7, v+8+p)
-        if color != transparency_color:
-            pyxel.line(x+8, y+h+p-8, x+w-8, y+h+p-8, color)
+    for p in range(h2):
+        color = pyxel.image(0).pget(u+cx-1, v+cy+p)
+        if color != tc:
+            pyxel.line(x+cx, y+h-h2+p, x+w-cx, y+h-h2+p, color)
     # Right Line
-    for p in range(8):
-        color = pyxel.image(0).pget(u+8+p, v+7)
-        if color != transparency_color:
-            pyxel.line(x+w+p-8, y+8, x+w+p-8, y+h-9, color)
+    for p in range(cx):
+        color = pyxel.image(0).pget(u+cx+p, v+cy-1)
+        if color != tc:
+            pyxel.line(x+w+p-cx, y+cy, x+w+p-cx, y+h-h2-1, color)
 
-    center_color = pyxel.image(0).pget(u + cx, v + cy)
-    pyxel.rect(x+8, y+8, w-8*2, h-8*2, center_color)
+    # Subtract cx and cy by 1 because the pixels are 0 indexed
+    center_color = pyxel.image(0).pget(u + cx-1, v + cy-1)
+    pyxel.rect(x+cx, y+cy, w-16, h-16, center_color)
 
 class RectPos(enum.Enum):
     TopLeft = 0

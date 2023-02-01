@@ -199,6 +199,7 @@ class App:
             pyxel.text(5, 35, f"Anims {len(self.sploosh_anims)}", 8)
 
         # self.draw9s()
-        lib.draw9s(25, 25, 0, 112, 100, 120, 7, 7, 8)
+        # lib.draw9s(25, 25, 0, 112, 100, 120, 8, 8, 8)
+        lib.draw9s(25, 25, 32, 112, 100, 120, 8, 12, 8)
 
 App()
