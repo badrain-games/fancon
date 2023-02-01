@@ -147,12 +147,20 @@ class App:
         # BR
         pyxel.blt(cwidth + offset, cheight + offset, 0, 8, 120, 8, 8, 8)
 
-        # Top Line
-        pyxel.line(offset + 8, offset + 1, cwidth + offset, offset + 1, 7)
-
         # Vertical Rect
         pyxel.rect(offset + 8, offset + 2, cwidth - 8, cheight + 4, 1)
+        # Horizontal Rect
+        pyxel.rect(offset + 2, offset + 8, cwidth + 4, cheight - 8, 1)
 
+        # Top Line
+        pyxel.line(offset + 8, offset + 1, cwidth + offset, offset + 1, 7)
+        # Bottom Line
+        pyxel.line(offset + 8, cheight + offset + 6, cwidth + offset, cheight + offset + 6, 7)
+        pyxel.line(offset + 8, cheight + offset + 7, cwidth + offset, cheight + offset + 7, 13)
+         # Left Line
+        pyxel.line(offset + 1, offset + 8, offset + 1, cheight + offset + 1, 7)
+         # Right Line
+        pyxel.line(cwidth + offset + 6, offset + 8, cwidth + offset + 6, cheight + offset + 1, 7)
 
     def draw(self):
         pyxel.cls(12)
