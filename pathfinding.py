@@ -1,7 +1,8 @@
 import pyxel
 import random
-from collections import deque
 import lib
+import math
+from collections import deque
 from lib import RectPos
 from dataclasses import dataclass
 
@@ -106,6 +107,26 @@ def bfs(start_node, target_node):
                     q.append(edge_node)
     return path
 
+def astar(start_node, target_node):
+    def get_distance(n1,n2):
+        x = (n2.index[1] * 8 + 3) - (n1.index[1] * 8 + 3)
+        y = (n2.index[0] * 8 + 3) - (n1.index[0] * 8 + 3)
+        return lib.mag(x, y)
+    nodes = []
+    nodes.append((math.inf, start_node))
+    start_node.visited = True
+
+    # while h:
+    for dist,node in nodes:
+        for edge in node.edges:
+            nn = get_node_at(*edge)
+            if not node.visited:
+                nn.visited = True
+                nodes.append((get_distance(nn, start_node), nn))
+
+    print(nodes)
+    return nodes
+
 def init():
     pyxel.init(128,128, title="Pathfinding", fps=60, display_scale=4)
     pyxel.load("Assets/pathfinding.pyxres")
@@ -168,7 +189,8 @@ def update():
             if node:
                 node.visited = False
 
-        p = dfs(player_node, target_node)
+        # p = dfs(player_node, target_node)
+        p = bfs(player_node, target_node)
         world.path = p
 
 

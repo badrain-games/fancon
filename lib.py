@@ -1,11 +1,19 @@
 import pyxel
 import enum
 
+def mag(x,y):
+    return pyxel.sqrt(x**2 + y**2)
+
+def distance(p1, p2):
+    x = (p2[0] * 8 + 3) - (p1[0] * 8 + 3)
+    y = (p2[1] * 8 + 3) - (p1[1] * 8 + 3)
+    return mag(x, y)
+
 def normalize(x, y):
     if x == 0 and y == 0:
         return (x,y)
-    magnitude = pyxel.sqrt(x**2 + y**2)
-    return (x / magnitude, y / magnitude)
+    m = mag(x, y)
+    return (x/m, y/m)
 
 class RectPos(enum.Enum):
     TopLeft = 0
