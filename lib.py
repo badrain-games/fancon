@@ -5,8 +5,10 @@ def mag(x,y):
     return pyxel.sqrt(x**2 + y**2)
 
 def distance(p1, p2):
-    x = (p2[0] * 8 + 3) - (p1[0] * 8 + 3)
-    y = (p2[1] * 8 + 3) - (p1[1] * 8 + 3)
+    x = (p2[0]) - (p1[0])
+    y = (p2[1]) - (p1[1])
+    if x == 0 and y == 0:
+        return 0
     return mag(x, y)
 
 def normalize(x, y):
