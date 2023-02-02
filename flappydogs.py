@@ -33,7 +33,9 @@ class App:
         self.fork_spawn_idx = 0
         self.trees = [(i * 32, pyxel.height - 32) for i in range(tree_spawn_count)]
         self.sploosh_anims = []
-        self.player_state = "Playing"
+        self.player_state = "Start"
+        self.last_anim = 0
+        self.anim_time = 0
         self.debug = False
         self.game_over_text = ""
 
@@ -56,6 +58,10 @@ class App:
     def handle_death(self, reason):
         self.game_over_text = get_random_gameover_text()
         self.player_state = reason
+
+    def start_update(self):
+        if pyxel.btnp(pyxel.KEY_SPACE):
+            self.player_state = "Playing"
 
     def game_update(self):
         if pyxel.btnp(pyxel.KEY_SPACE):
@@ -141,7 +147,9 @@ class App:
         if pyxel.btnp(pyxel.KEY_Q):
             pyxel.quit()
 
-        if self.player_state == "Playing":
+        if self.player_state == "Start":
+            self.start_update()
+        elif self.player_state == "Playing":
             self.game_update()
         elif self.player_state.startswith("Dead"):
             self.dead_update()
@@ -174,8 +182,9 @@ class App:
         self.sploosh_anims = list(filter(ff, self.sploosh_anims))
 
 
-        u = sprite_size if self.player_dy > 0 else 0
-        pyxel.blt(player_x, self.player_y, 0, u, 32, sprite_size, sprite_size, 0)
+        if self.player_state == "Playing":
+            u = sprite_size if self.player_dy > 0 else 0
+            pyxel.blt(player_x, self.player_y, 0, u, 32, sprite_size, sprite_size, 0)
 
         #Draw score backplate
         lib.draw9s(0, 0, 0, 112, 45, 16, 8, 12, 8)
@@ -190,6 +199,24 @@ class App:
             text_width = (len(self.game_over_text) * 4 + 10)
             lib.draw9s((pyxel.width / 2) - (text_width / 2), 60, 0, 112, text_width, 16, 8, 12, 8)
             pyxel.text((pyxel.width / 2) - (text_width / 2) + 5, 65, self.game_over_text, 7)
+            if self.player_state == "Dead_Impaled":
+
+                if pyxel.frame_count % 100 == 0:
+                    self.anim_time = 0
+
+                print(self.anim_time)
+                anim_speed = 7
+                if self.anim_time == anim_speed:
+                    self.last_anim = 16
+                elif self.anim_time == anim_speed * 2:
+                    self.last_anim = 0
+                elif self.anim_time == anim_speed * 3:
+                    self.last_anim = 16
+                elif self.anim_time == anim_speed * 4:
+                    self.last_anim = 0
+
+                self.anim_time += 1
+                pyxel.blt(player_x, self.player_y, 0, self.last_anim, 32, sprite_size, sprite_size, 0)
 
 
 App()
