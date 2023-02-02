@@ -4,7 +4,7 @@ import lib
 
 player_x = 60
 sprite_size = 16
-jump_boost = 1.93
+jump_boost = 2.55
 gravity = 0.139
 fork_speed = 1
 tree_speed = 1
@@ -47,7 +47,7 @@ class App:
             self.trees[i] = (i * 32, pyxel.height - 32)
 
     def game_update(self):
-        if pyxel.btn(pyxel.KEY_SPACE):
+        if pyxel.btnp(pyxel.KEY_SPACE):
             self.player_dy = jump_boost
 
         if pyxel.btnp(pyxel.KEY_SPACE):
@@ -93,7 +93,7 @@ class App:
                 disty = round(pcy - fcy)
                 dir = pyxel.atan2(distx, disty)
                 print(dir)
-                if ((dir > -35 and dir < 40) and colyt) or ((dir < -140 or dir > 120) and colyb):
+                if ((dir > -35 and dir < 40) and colyt) or ((dir < -140 or dir > 130) and colyb):
                     self.player_state = "Dead_Impaled"
                 else:
                     self.player_state = "Dead_Crashed"
