@@ -105,6 +105,7 @@ def bfs(start_node, target_node):
                 if not edge_node.visited:
                     hierarchy[int(erow * 16 + ecol)] = n
                     q.append(edge_node)
+    path.reverse()
     return path
 
 def astar(start_node, target_node):
@@ -179,6 +180,21 @@ def update():
     for pt in rect_points:
         px,py = check_boundary(px, py, pt)
 
+    if world.path:
+        n = world.path[0]
+        nx,ny = n.index[1] * 8 + 4, n.index[0] * 8 + 4
+        # pcx,pcy = lib.rect_point(RectPos.Center, (px,py,8,8))
+        pcx,pcy = px+4,py+4
+        dir = lib.normalize(nx - pcx, ny - pcy)
+        pcx,pcy = (pcx + dir[0] * player_speed * 0.5, pcy + dir[1] * player_speed * 0.5)
+        dist = lib.distance((nx,ny), (pcx,pcy))
+        if dist < 0.8:
+            # world.path.pop()
+            pcx,pcy = nx,ny
+            del world.path[0]
+        world.player_pos = pcx-4,pcy-4
+
+
     global map_graph
     if pyxel.btnp(pyxel.MOUSE_BUTTON_LEFT):
         world.mouse_click = pyxel.mouse_x, pyxel.mouse_y
@@ -194,7 +210,7 @@ def update():
         world.path = p
 
 
-    world.player_pos = px,py
+    # world.player_pos = px,py
     if x != 0:
         world.player_dir = 1 if x > 0 else -1
     world.player_state = "Moving" if x != 0 or y != 0 else "Idle"
