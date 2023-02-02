@@ -157,7 +157,7 @@ class App:
         # Draw hotdog animation
         for x,y,fc in self.sploosh_anims:
             animx = ((pyxel.frame_count - fc) // anim_speed) * sprite_size
-            pyxel.blt(x, y, 0, animx, 96, sprite_size, sprite_size, 0)
+            pyxel.blt(x, y, 0, animx, 80, sprite_size, sprite_size, 0)
 
         ff = lambda sploosh: ((pyxel.frame_count - sploosh[2]) // anim_speed) < 4
         self.sploosh_anims = list(filter(ff, self.sploosh_anims))
@@ -165,11 +165,19 @@ class App:
 
         u = sprite_size if self.player_dy > 0 else 0
         pyxel.blt(player_x, self.player_y, 0, u, 32, sprite_size, sprite_size, 0)
-        pyxel.text(5, 5, f"Score {self.score}", 1)
+
+        #Draw score backplate
+        lib.draw9s(0, 0, 0, 112, 37, 16, 8, 12, 8)
+
+        pyxel.text(5, 5, f"Score {self.score}", 7)
         if self.debug:
             pyxel.text(5, 15, str(self.player_y), 1)
             pyxel.text(5, 35, f"Anims {len(self.sploosh_anims)}", 8)
 
-        lib.draw9s(25, 25, 32, 112, 100, 120, 8, 12, 8)
+        #Draw Game Over
+        if self.player_state.startswith("Dead"):
+            lib.draw9s(53, 60, 0, 112, 55, 16, 8, 12, 8)
+            pyxel.text(58, 65, f"Get Flopped!", 7)
+
 
 App()
