@@ -13,9 +13,13 @@ fork_spawn_interval = 70
 fork_spawn_count = 8
 tree_spawn_count = 6
 fork_midgap = 50
+game_over_texts = ["Get Flopped!", "Get Forked!", "You're what's for dinner"]
 
 def get_random_height():
     return random.randrange(20,90)
+
+def get_random_gameover_text():
+    return random.choice(game_over_texts)
 
 class App:
     def __init__(self):
@@ -31,6 +35,7 @@ class App:
         self.sploosh_anims = []
         self.player_state = "Playing"
         self.debug = False
+        self.game_over_text = ""
 
         pyxel.run(self.update, self.draw)
 
@@ -40,11 +45,17 @@ class App:
         self.score = 0
         self.player_state = "Playing"
         self.fork_spawn_idx = 0
+        self.game_over_text = ""
+
         for i in range(len(self.forks)):
             self.forks[i] = (-sprite_size, get_random_height(), True)
 
         for i in range(len(self.trees)):
             self.trees[i] = (i * 32, pyxel.height - 32)
+
+    def handle_death(self, reason):
+        self.game_over_text = get_random_gameover_text()
+        self.player_state = reason
 
     def game_update(self):
         if pyxel.btn(pyxel.KEY_SPACE):
@@ -57,7 +68,7 @@ class App:
         self.player_y -= self.player_dy
 
         if self.player_y + sprite_size >= pyxel.height:
-            self.player_state = "Dead_Crashed"
+            self.handle_death("Dead_Crashed")
 
         # Check if we need to spawn a new fork
         fork_spawn_reset = -1
@@ -94,9 +105,9 @@ class App:
                 dir = pyxel.atan2(distx, disty)
                 print(dir)
                 if ((dir > -35 and dir < 40) and colyt) or ((dir < -140 or dir > 120) and colyb):
-                    self.player_state = "Dead_Impaled"
+                    self.handle_death("Dead_Impaled")
                 else:
-                    self.player_state = "Dead_Crashed"
+                    self.handle_death("Dead_Crashed")
 
         # Loop trees
         if pyxel.frame_count % 2 == 0:
@@ -167,7 +178,7 @@ class App:
         pyxel.blt(player_x, self.player_y, 0, u, 32, sprite_size, sprite_size, 0)
 
         #Draw score backplate
-        lib.draw9s(0, 0, 0, 112, 37, 16, 8, 12, 8)
+        lib.draw9s(0, 0, 0, 112, 45, 16, 8, 12, 8)
 
         pyxel.text(5, 5, f"Score {self.score}", 7)
         if self.debug:
@@ -176,8 +187,9 @@ class App:
 
         #Draw Game Over
         if self.player_state.startswith("Dead"):
-            lib.draw9s(53, 60, 0, 112, 55, 16, 8, 12, 8)
-            pyxel.text(58, 65, f"Get Flopped!", 7)
+            text_width = (len(self.game_over_text) * 4 + 10)
+            lib.draw9s((pyxel.width / 2) - (text_width / 2), 60, 0, 112, text_width, 16, 8, 12, 8)
+            pyxel.text((pyxel.width / 2) - (text_width / 2) + 5, 65, self.game_over_text, 7)
 
 
 App()
