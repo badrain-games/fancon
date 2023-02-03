@@ -11,6 +11,9 @@ class Node:
     index: (int,int)
     edges: list
     visited: bool
+    parent: None
+    g = 0
+    h = 0
 
 @dataclass
 class World:
@@ -38,6 +41,9 @@ def get_block_rect(x, y):
 def player_rect():
     return (*world.player_pos, 8, 8)
 
+def get_node_pos(node):
+    return node.index[1] * 8 + 4, node.index[0] * 8 + 4
+
 def generate_graph():
     graph = [None] * (16 * 16)
     for row in range(16):
@@ -46,7 +52,7 @@ def generate_graph():
                 tiles = lib.get_surrounding_tiles(0, col*8, row*8)
                 filtered = filter(lambda xyt: xyt[2] == 1, tiles)
                 edges = list(map(lambda xyt: (xyt[1]//8,xyt[0]//8), filtered))
-                graph[row * 16 + col] = Node((row,col), edges, False)
+                graph[row * 16 + col] = Node((row,col), edges, False, None)
     return graph
 
 def debug_print_graph():
@@ -109,24 +115,42 @@ def bfs(start_node, target_node):
     return path
 
 def astar(start_node, target_node):
-    def get_distance(n1,n2):
-        x = (n2.index[1] * 8 + 3) - (n1.index[1] * 8 + 3)
-        y = (n2.index[0] * 8 + 3) - (n1.index[0] * 8 + 3)
-        return lib.mag(x, y)
-    nodes = []
-    nodes.append((math.inf, start_node))
+    if target_node is None:
+        return []
+    heap = [start_node]
+
+    def calculate_cost(node):
+        node.g = lib.distance(get_node_pos(start_node), get_node_pos(node))
+        node.h = lib.distance(get_node_pos(node), get_node_pos(target_node))
+
     start_node.visited = True
 
-    # while h:
-    for dist,node in nodes:
+    path = []
+
+    while heap:
+        node = heap[0]
+        if node == target_node:
+            while node.parent is not None and node.parent != start_node:
+                path.append(node)
+                node = node.parent
+            return path
+
+        node.visited = True
         for edge in node.edges:
             nn = get_node_at(*edge)
-            if not node.visited:
-                nn.visited = True
-                nodes.append((get_distance(nn, start_node), nn))
+            if not nn.visited:
+                calculate_cost(nn)
+                nn.parent = node
+                if nn not in heap:
+                    heap.append(nn)
+        if node.parent:
+            print(f"N:{node.index} ({node.g}+{node.h}={node.g+node.h}) P:{node.parent.index}")
+        else:
+            print(f"N:{node.index} ({node.g}|{node.h}) P:None")
+        heap.pop(0)
+        heap.sort(key=lambda n: n.g + n.h)
 
-    print(nodes)
-    return nodes
+    return path
 
 def init():
     pyxel.init(128,128, title="Pathfinding", fps=60, display_scale=4)
@@ -182,7 +206,7 @@ def update():
 
     if world.path:
         n = world.path[0]
-        nx,ny = n.index[1] * 8 + 4, n.index[0] * 8 + 4
+        nx,ny = get_node_pos(n)
         # pcx,pcy = lib.rect_point(RectPos.Center, (px,py,8,8))
         pcx,pcy = px+4,py+4
         dir = lib.normalize(nx - pcx, ny - pcy)
@@ -192,7 +216,7 @@ def update():
             # world.path.pop()
             pcx,pcy = nx,ny
             del world.path[0]
-        world.player_pos = pcx-4,pcy-4
+        px,py = pcx-4,pcy-4
 
 
     global map_graph
@@ -204,20 +228,22 @@ def update():
         for node in map_graph:
             if node:
                 node.visited = False
+                node.parent = None
 
         # p = dfs(player_node, target_node)
-        p = bfs(player_node, target_node)
+        # p = bfs(player_node, target_node)
+        p = astar(player_node, target_node)
         world.path = p
 
 
-    # world.player_pos = px,py
+    world.player_pos = px,py
     if x != 0:
         world.player_dir = 1 if x > 0 else -1
     world.player_state = "Moving" if x != 0 or y != 0 else "Idle"
 
 def mark_tiles(tiles):
     for t in tiles:
-        pyxel.rect(t[0]+3, t[1]+3, 2, 2, 7)
+        pyxel.rect(t[0]+4, t[1]+4, 2, 2, 7)
 
 def draw():
     pyxel.bltm(0,0,0,0,0,128,128)
@@ -232,10 +258,10 @@ def draw():
 
     for n in map_graph:
         if n and n.visited:
-            pyxel.rect(n.index[1]*8+3, n.index[0]*8+3, 2, 2, 8)
+            pyxel.rect(*get_node_pos(n), 2, 2, 8)
 
     for n in world.path:
-        pyxel.rect(n.index[1]*8+3, n.index[0]*8+3, 2, 2, 7)
+        pyxel.rect(n.index[1]*8+4, n.index[0]*8+4, 2, 2, 7)
 
 
     # if world.mouse_click is not None:
