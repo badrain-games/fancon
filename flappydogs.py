@@ -48,6 +48,8 @@ class App:
         self.player_state = "Playing"
         self.fork_spawn_idx = 0
         self.game_over_text = ""
+        self.last_anim = 0
+        self.anim_time = 0
 
         for i in range(len(self.forks)):
             self.forks[i] = (-sprite_size, get_random_height(), True)
@@ -139,9 +141,10 @@ class App:
             if self.player_y < pyxel.height + sprite_size:
                 self.player_dy -= gravity
                 self.player_y -= self.player_dy
-        # elif self.player_state == "Dead_Impaled":
-            # if self.player_y < pyxel.height + sprite_size:
-            #     self.player_y += 0.1
+        elif self.player_state == "Dead_Impaled":
+                if abs(self.player_dy) > 0.01:
+                    self.player_dy *= 0.6
+                    self.player_y -= self.player_dy
 
     def update(self):
         if pyxel.btnp(pyxel.KEY_Q):
@@ -186,25 +189,14 @@ class App:
             u = sprite_size if self.player_dy > 0 else 0
             pyxel.blt(player_x, self.player_y, 0, u, 32, sprite_size, sprite_size, 0)
 
-        #Draw score backplate
-        lib.draw9s(0, 0, 0, 112, 45, 16, 8, 12, 8)
-
-        pyxel.text(5, 5, f"Score {self.score}", 7)
-        if self.debug:
-            pyxel.text(5, 15, str(self.player_y), 1)
-            pyxel.text(5, 35, f"Anims {len(self.sploosh_anims)}", 8)
-
-        #Draw Game Over
+        # Draw Game Over
         if self.player_state.startswith("Dead"):
-            text_width = (len(self.game_over_text) * 4 + 10)
-            lib.draw9s((pyxel.width / 2) - (text_width / 2), 60, 0, 112, text_width, 16, 8, 12, 8)
-            pyxel.text((pyxel.width / 2) - (text_width / 2) + 5, 65, self.game_over_text, 7)
             if self.player_state == "Dead_Impaled":
 
+                print(self.anim_time)
                 if pyxel.frame_count % 100 == 0:
                     self.anim_time = 0
 
-                print(self.anim_time)
                 anim_speed = 7
                 if self.anim_time == anim_speed:
                     self.last_anim = 16
@@ -217,6 +209,20 @@ class App:
 
                 self.anim_time += 1
                 pyxel.blt(player_x, self.player_y, 0, self.last_anim, 32, sprite_size, sprite_size, 0)
+            else:
+                pyxel.blt(player_x, self.player_y, 0, 0, 32, sprite_size, sprite_size, 0)
+
+            text_width = (len(self.game_over_text) * 4 + 10)
+            lib.draw9s((pyxel.width / 2) - (text_width / 2), 60, 0, 112, text_width, 16, 8, 12, 8)
+            pyxel.text((pyxel.width / 2) - (text_width / 2) + 5, 65, self.game_over_text, 7)
+
+        #Draw score backplate
+        lib.draw9s(0, 0, 0, 112, 45, 16, 8, 12, 8)
+
+        pyxel.text(5, 5, f"Score {self.score}", 7)
+        if self.debug:
+            pyxel.text(5, 15, str(self.player_y), 1)
+            pyxel.text(5, 35, f"Anims {len(self.sploosh_anims)}", 8)
 
 
 App()
