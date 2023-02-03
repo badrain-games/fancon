@@ -193,6 +193,13 @@ class App:
             u = sprite_size if self.player_dy > 0 else 0
             pyxel.blt(player_x, self.player_y, 0, u, 32, sprite_size, sprite_size, 0)
 
+        # Draw Start Screen
+        if self.player_state == "Start":
+            lib.draw9s(33, 60, 0, 112, 92, 16, 8, 12, 8)
+            # Text Outline
+            pyxel.text(38, 66, "Press Space to start!", 0)
+            pyxel.text(38, 65, "Press Space to start!", 7)
+
         # Draw Game Over
         if self.player_state.startswith("Dead"):
             if self.player_state == "Dead_Impaled":
@@ -223,11 +230,20 @@ class App:
 
             text_width = (len(self.game_over_text) * 4 + 10)
             lib.draw9s((pyxel.width / 2) - (text_width / 2), 60, 0, 112, text_width, 16, 8, 12, 8)
+            # Text Outline
+            pyxel.text((pyxel.width / 2) - (text_width / 2) + 5, 66, self.game_over_text, 0)
             pyxel.text((pyxel.width / 2) - (text_width / 2) + 5, 65, self.game_over_text, 7)
 
-        #Draw score backplate
+            lib.draw9s(45, 130, 0, 112, 73, 16, 8, 12, 8)
+            # Text Outline
+            pyxel.text(50, 136, "Press R to reset", 0)
+            pyxel.text(50, 135, "Press R to reset", 7)
+
+        # Draw score backplate
         lib.draw9s(0, 0, 0, 112, 45, 16, 8, 12, 8)
 
+        # Text Outline
+        pyxel.text(5, 6, f"Score {self.score}", 0)
         pyxel.text(5, 5, f"Score {self.score}", 7)
         if self.debug:
             pyxel.text(5, 15, str(self.player_y), 1)
