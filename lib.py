@@ -85,7 +85,7 @@ def rect_overlaps(r1, r2):
     r2x,r2y,r2w,r2h = r2
     if ((r1x > r2x and r1x < r2x + r2w and r1y > r2y and r1y < r2y + r2h)
         or
-        (r2x > r2x and r1x < r2x + r2w and r1y > r2y and r1y < r2y + r2h)):
+        (r2x > r1x and r2x < r1x + r1w and r2y > r1y and r2y < r1y + r1h)):
         return True
 
 def rect_point(point, rect):

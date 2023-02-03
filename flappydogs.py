@@ -204,7 +204,6 @@ class App:
         if self.player_state.startswith("Dead"):
             if self.player_state == "Dead_Impaled":
 
-                print(self.anim_time)
                 if pyxel.frame_count % 100 == 0:
                     self.anim_time = 0
 
