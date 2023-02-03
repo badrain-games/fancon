@@ -33,9 +33,11 @@ class App:
         self.fork_spawn_idx = 0
         self.trees = [(i * 32, pyxel.height - 32) for i in range(tree_spawn_count)]
         self.sploosh_anims = []
+        self.hit_vfx = (0, 0)
         self.player_state = "Start"
         self.last_anim = 0
         self.anim_time = 0
+        self.vfx_anim_time = 0
         self.debug = False
         self.game_over_text = ""
 
@@ -50,6 +52,7 @@ class App:
         self.game_over_text = ""
         self.last_anim = 0
         self.anim_time = 0
+        self.vfx_anim_time = 0
 
         for i in range(len(self.forks)):
             self.forks[i] = (-sprite_size, get_random_height(), True)
@@ -60,6 +63,7 @@ class App:
     def handle_death(self, reason):
         self.game_over_text = get_random_gameover_text()
         self.player_state = reason
+        self.hit_vfx = (player_x, self.player_y)
 
     def start_update(self):
         if pyxel.btnp(pyxel.KEY_SPACE):
@@ -211,6 +215,11 @@ class App:
                 pyxel.blt(player_x, self.player_y, 0, self.last_anim, 32, sprite_size, sprite_size, 0)
             else:
                 pyxel.blt(player_x, self.player_y, 0, 0, 32, sprite_size, sprite_size, 0)
+
+            sprite_u = 64 + (16 * (self.vfx_anim_time // 4))
+            self.vfx_anim_time += 1
+            if sprite_u <= 112:
+                pyxel.blt(self.hit_vfx[0], self.hit_vfx[1], 0, sprite_u, 88, 16, 16, 0)
 
             text_width = (len(self.game_over_text) * 4 + 10)
             lib.draw9s((pyxel.width / 2) - (text_width / 2), 60, 0, 112, text_width, 16, 8, 12, 8)
