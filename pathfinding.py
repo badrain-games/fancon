@@ -11,6 +11,7 @@ class Node:
     index: (int,int)
     edges: list
     visited: bool
+    processed: bool
     parent: None
     g = 0
     h = 0
@@ -52,7 +53,7 @@ def generate_graph():
                 tiles = lib.get_surrounding_tiles(0, col*8, row*8)
                 filtered = filter(lambda xyt: xyt[2] == 1, tiles)
                 edges = list(map(lambda xyt: (xyt[1]//8,xyt[0]//8), filtered))
-                graph[row * 16 + col] = Node((row,col), edges, False, None)
+                graph[row * 16 + col] = Node((row,col), edges, False, False, None)
     return graph
 
 def debug_print_graph():
@@ -123,25 +124,27 @@ def astar(start_node, target_node):
         node.g = lib.distance(get_node_pos(start_node), get_node_pos(node))
         node.h = lib.distance(get_node_pos(node), get_node_pos(target_node))
 
-    start_node.visited = True
+    start_node.processed = True
 
     path = []
 
     while heap:
         node = heap[0]
         if node == target_node:
-            while node.parent is not None and node.parent != start_node:
+            while node.parent is not None:
                 path.append(node)
                 node = node.parent
+            path.reverse()
             return path
 
-        node.visited = True
+        node.processed = True
         for edge in node.edges:
             nn = get_node_at(*edge)
-            if not nn.visited:
+            if not nn.processed:
                 calculate_cost(nn)
                 nn.parent = node
                 if nn not in heap:
+                    nn.visited = True
                     heap.append(nn)
         if node.parent:
             print(f"N:{node.index} ({node.g}+{node.h}={node.g+node.h}) P:{node.parent.index}")
@@ -228,6 +231,7 @@ def update():
         for node in map_graph:
             if node:
                 node.visited = False
+                node.processed = False
                 node.parent = None
 
         # p = dfs(player_node, target_node)
@@ -257,8 +261,10 @@ def draw():
     # mark_tiles(lib.get_surrounding_tiles(0,pcx,pcy))
 
     for n in map_graph:
-        if n and n.visited:
+        if n and n.processed:
             pyxel.rect(*get_node_pos(n), 2, 2, 8)
+        elif n and n.visited:
+            pyxel.rect(*get_node_pos(n), 2, 2, 3)
 
     for n in world.path:
         pyxel.rect(n.index[1]*8+4, n.index[0]*8+4, 2, 2, 7)
