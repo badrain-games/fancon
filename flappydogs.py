@@ -64,6 +64,7 @@ class App:
         self.game_over_text = get_random_gameover_text()
         self.player_state = reason
         self.hit_vfx = (player_x, self.player_y)
+        pyxel.play(2, 1)
 
     def start_update(self):
         if pyxel.btnp(pyxel.KEY_SPACE):
@@ -72,9 +73,9 @@ class App:
     def game_update(self):
         if pyxel.btnp(pyxel.KEY_SPACE):
             self.player_dy = jump_boost
-
-        if pyxel.btnp(pyxel.KEY_SPACE):
             self.sploosh_anims.append((player_x, self.player_y, pyxel.frame_count))
+            pyxel.play(3, 0)
+
 
         self.player_dy -= gravity
         self.player_y -= self.player_dy
@@ -97,6 +98,7 @@ class App:
             if x_ + sprite_size < player_x and not passed:
                 self.forks[i] = (x_, y, True)
                 self.score += 1
+                pyxel.play(2, 2)
             else:
                 self.forks[i] = (x_, y, passed)
 
