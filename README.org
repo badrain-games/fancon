@@ -1,0 +1,5 @@
+** Floppy Dog
+
+First game made with [[https://github.com/kitao/pyxel/][Pyxel]]
+
+It's a hot dog and it's floppy.
