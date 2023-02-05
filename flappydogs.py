@@ -40,7 +40,8 @@ class App:
         self.vfx_anim_time = 0
         self.debug = False
         self.game_over_text = ""
-        pyxel.play(0, 4, loop = True)
+        # pyxel.play(0, 5, loop = True)
+        # pyxel.playm(0, loop = True)
 
         pyxel.run(self.update, self.draw)
 
