@@ -40,6 +40,7 @@ class App:
         self.vfx_anim_time = 0
         self.debug = False
         self.game_over_text = ""
+        pyxel.play(0, 4, loop = True)
 
         pyxel.run(self.update, self.draw)
 
@@ -64,7 +65,12 @@ class App:
         self.game_over_text = get_random_gameover_text()
         self.player_state = reason
         self.hit_vfx = (player_x, self.player_y)
-        pyxel.play(2, 1)
+
+        if reason == "Dead_Crashed":
+            pyxel.play(2, 1)
+
+        elif reason == "Dead_Impaled":
+            pyxel.play(2, 3)
 
     def start_update(self):
         if pyxel.btnp(pyxel.KEY_SPACE):
