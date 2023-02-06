@@ -23,6 +23,9 @@ class World:
     player_state = "Idle"
     mouse_click = None
     surrounding_grid = [(0,0)] * 8
+    heap = []
+    start_node = None
+    target_node = None
     path = []
     angle = 0
 
@@ -115,27 +118,30 @@ def bfs(start_node, target_node):
     path.reverse()
     return path
 
-def astar(start_node, target_node):
+def astar_init(start_node, target_node):
     if target_node is None:
         return []
-    heap = [start_node]
-
-    def calculate_cost(node):
-        node.g = lib.distance(get_node_pos(start_node), get_node_pos(node))
-        node.h = lib.distance(get_node_pos(node), get_node_pos(target_node))
-
+    world.path = []
+    world.heap = [start_node]
+    world.start_node = start_node
+    world.target_node = target_node
     start_node.processed = True
 
-    path = []
 
-    while heap:
+def calculate_cost(node):
+    node.g = lib.distance(get_node_pos(world.start_node), get_node_pos(node))
+    node.h = lib.distance(get_node_pos(node), get_node_pos(world.target_node))
+
+def astar_update(start_node, target_node):
+    heap = world.heap
+    if heap:
         node = heap[0]
         if node == target_node:
             while node.parent is not None:
-                path.append(node)
+                world.path.append(node)
                 node = node.parent
-            path.reverse()
-            return path
+            world.path.reverse()
+            return
 
         node.processed = True
         for edge in node.edges:
@@ -146,17 +152,11 @@ def astar(start_node, target_node):
                 if nn not in heap:
                     nn.visited = True
                     heap.append(nn)
-        if node.parent:
-            print(f"N:{node.index} ({node.g}+{node.h}={node.g+node.h}) P:{node.parent.index}")
-        else:
-            print(f"N:{node.index} ({node.g}|{node.h}) P:None")
         heap.pop(0)
         heap.sort(key=lambda n: n.g + n.h)
 
-    return path
-
 def init():
-    pyxel.init(128,128, title="Pathfinding", fps=60, display_scale=4)
+    pyxel.init(128,128, title="Pathfinding", fps=60, display_scale=6)
     pyxel.load("Assets/pathfinding.pyxres")
 
     global map_graph
@@ -207,19 +207,19 @@ def update():
     for pt in rect_points:
         px,py = check_boundary(px, py, pt)
 
-    if world.path:
-        n = world.path[0]
-        nx,ny = get_node_pos(n)
-        # pcx,pcy = lib.rect_point(RectPos.Center, (px,py,8,8))
-        pcx,pcy = px+4,py+4
-        dir = lib.normalize(nx - pcx, ny - pcy)
-        pcx,pcy = (pcx + dir[0] * player_speed * 0.5, pcy + dir[1] * player_speed * 0.5)
-        dist = lib.distance((nx,ny), (pcx,pcy))
-        if dist < 0.8:
-            # world.path.pop()
-            pcx,pcy = nx,ny
-            del world.path[0]
-        px,py = pcx-4,pcy-4
+    # if world.path:
+    #     n = world.path[0]
+    #     nx,ny = get_node_pos(n)
+    #     # pcx,pcy = lib.rect_point(RectPos.Center, (px,py,8,8))
+    #     pcx,pcy = px+4,py+4
+    #     dir = lib.normalize(nx - pcx, ny - pcy)
+    #     pcx,pcy = (pcx + dir[0] * player_speed * 0.5, pcy + dir[1] * player_speed * 0.5)
+    #     dist = lib.distance((nx,ny), (pcx,pcy))
+    #     if dist < 0.8:
+    #         # world.path.pop()
+    #         pcx,pcy = nx,ny
+    #         del world.path[0]
+    #     px,py = pcx-4,pcy-4
 
 
     global map_graph
@@ -236,9 +236,13 @@ def update():
 
         # p = dfs(player_node, target_node)
         # p = bfs(player_node, target_node)
-        p = astar(player_node, target_node)
-        world.path = p
+        astar_init(player_node, target_node)
+        astar_update(player_node, target_node)
 
+        # world.path = p
+
+    if pyxel.btnp(pyxel.KEY_SPACE, hold=25, repeat=4):
+        astar_update(world.start_node, world.target_node)
 
     world.player_pos = px,py
     if x != 0:
@@ -263,6 +267,9 @@ def draw():
     for n in map_graph:
         if n and n.processed:
             pyxel.rect(*get_node_pos(n), 2, 2, 8)
+            # nx,ny = get_node_pos(n)
+            # pyxel.rect(nx-4, ny-4, 8, 8, 8)
+            # pyxel.text(nx-4, ny-4, str(n.g), 7)
         elif n and n.visited:
             pyxel.rect(*get_node_pos(n), 2, 2, 3)
 
