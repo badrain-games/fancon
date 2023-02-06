@@ -70,8 +70,9 @@ def get_tile_coord(x,y):
     return y//8,x//8
 
 def get_node_at(row,col):
-    idx = int(row * 16 + col)
-    return map_graph[idx]
+    if row >= 0 and row < 16 and col >= 0 and col < 16:
+        idx = int(row * 16 + col)
+        return map_graph[idx]
 
 def dfs(current_node, target_node):
     if current_node == target_node:
@@ -129,8 +130,8 @@ def astar_init(start_node, target_node):
 
 
 def calculate_cost(node):
-    node.g = lib.distance(get_node_pos(world.start_node), get_node_pos(node))
-    node.h = lib.distance(get_node_pos(node), get_node_pos(world.target_node))
+    node.g = lib.distance(get_node_pos(world.start_node), get_node_pos(node)) * 1
+    node.h = lib.distance(get_node_pos(node), get_node_pos(world.target_node)) * 1
 
 def astar_update(start_node, target_node):
     heap = world.heap
@@ -141,6 +142,7 @@ def astar_update(start_node, target_node):
                 world.path.append(node)
                 node = node.parent
             world.path.reverse()
+            world.heap = []
             return
 
         node.processed = True
@@ -244,6 +246,10 @@ def update():
     if pyxel.btnp(pyxel.KEY_SPACE, hold=25, repeat=4):
         astar_update(world.start_node, world.target_node)
 
+    if pyxel.btnp(pyxel.KEY_RETURN):
+        while world.heap:
+            astar_update(world.start_node, world.target_node)
+
     world.player_pos = px,py
     if x != 0:
         world.player_dir = 1 if x > 0 else -1
@@ -288,6 +294,11 @@ def draw():
 
     # dir = pyxel.mouse_x - px, pyxel.mouse_y - py
     # pyxel.text(5,10, f"Angle: {pyxel.atan2(*dir)}", 7)
+
+    hover = get_node_at(*get_tile_coord(pyxel.mouse_x,pyxel.mouse_y))
+    if hover:
+        t = int(hover.h + hover.g)
+        pyxel.text(5, 5, f"G: {int(hover.g)}\nH: {int(hover.h)}\nT: {t}", 7)
 
     color = pyxel.pget(pyxel.mouse_x, pyxel.mouse_y)
     pyxel.blt(pyxel.mouse_x + - 3, pyxel.mouse_y - 3, 0, 0, 16, 8, 8, 0)
