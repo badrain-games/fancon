@@ -73,11 +73,11 @@ class App:
             pyxel.play(2, 3)
 
     def start_update(self):
-        if pyxel.btnp(pyxel.KEY_SPACE):
+        if pyxel.btnp(pyxel.KEY_SPACE) or pyxel.btnp(pyxel.MOUSE_BUTTON_LEFT):
             self.player_state = "Playing"
 
     def game_update(self):
-        if pyxel.btnp(pyxel.KEY_SPACE):
+        if pyxel.btnp(pyxel.KEY_SPACE) or pyxel.btnp(pyxel.MOUSE_BUTTON_LEFT):
             self.player_dy = jump_boost
             self.sploosh_anims.append((player_x, self.player_y, pyxel.frame_count))
             pyxel.play(3, 0)
@@ -146,7 +146,7 @@ class App:
             self.sploosh_anims[i] = x - sploosh_speed,y,fc
 
     def dead_update(self):
-        if pyxel.btnp(pyxel.KEY_R):
+        if pyxel.btnp(pyxel.KEY_R) or pyxel.btnp(pyxel.MOUSE_BUTTON_LEFT):
             self.reset()
 
         if self.player_state == "Dead_Crashed":
