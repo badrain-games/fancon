@@ -13,8 +13,8 @@ class Node:
     visited: bool
     processed: bool
     parent: None
-    g = 0
-    h = 0
+    g = 99999
+    h = 99999
 
 @dataclass
 class World:
@@ -23,6 +23,9 @@ class World:
     player_state = "Idle"
     mouse_click = None
     surrounding_grid = [(0,0)] * 8
+    heap = []
+    start_node = None
+    target_node = None
     path = []
     angle = 0
 
@@ -67,8 +70,9 @@ def get_tile_coord(x,y):
     return y//8,x//8
 
 def get_node_at(row,col):
-    idx = int(row * 16 + col)
-    return map_graph[idx]
+    if row >= 0 and row < 16 and col >= 0 and col < 16:
+        idx = int(row * 16 + col)
+        return map_graph[idx]
 
 def dfs(current_node, target_node):
     if current_node == target_node:
@@ -89,7 +93,6 @@ def bfs(start_node, target_node):
 
     q = deque()
     q.append(start_node)
-    hierarchy = [None] * len(map_graph)
     path = []
     found = False
     while q and not found:
@@ -98,10 +101,9 @@ def bfs(start_node, target_node):
             current = n
             path.append(n)
             while True:
-                parent = hierarchy[current.index[0] * 16 + current.index[1]]
-                if parent:
-                    path.append(parent)
-                    current = parent
+                if current.parent:
+                    path.append(current.parent)
+                    current = current.parent
                 else:
                     found = True
                     break
@@ -110,53 +112,51 @@ def bfs(start_node, target_node):
             for erow,ecol in n.edges:
                 edge_node = get_node_at(erow,ecol)
                 if not edge_node.visited:
-                    hierarchy[int(erow * 16 + ecol)] = n
+                    edge_node.parent = n
                     q.append(edge_node)
     path.reverse()
     return path
 
-def astar(start_node, target_node):
+def astar_init(start_node, target_node):
     if target_node is None:
         return []
-    heap = [start_node]
-
-    def calculate_cost(node):
-        node.g = lib.distance(get_node_pos(start_node), get_node_pos(node))
-        node.h = lib.distance(get_node_pos(node), get_node_pos(target_node))
-
+    world.path = []
+    world.heap = [start_node]
+    world.start_node = start_node
+    world.target_node = target_node
     start_node.processed = True
 
-    path = []
 
-    while heap:
+g_cost = 10
+def astar_update(start_node, target_node):
+    heap = world.heap
+    if heap:
         node = heap[0]
         if node == target_node:
             while node.parent is not None:
-                path.append(node)
+                world.path.append(node)
                 node = node.parent
-            path.reverse()
-            return path
+            world.path.reverse()
+            world.heap = []
+            return
 
         node.processed = True
         for edge in node.edges:
             nn = get_node_at(*edge)
             if not nn.processed:
-                calculate_cost(nn)
+                if g_cost + node.g >= nn.g + nn.h:
+                    print(f"I did it {g_cost + node.g}")
+                nn.h = lib.distance(get_node_pos(nn), get_node_pos(world.target_node)) * 1.2
+                nn.g = g_cost + node.g if node.parent else g_cost
                 nn.parent = node
                 if nn not in heap:
                     nn.visited = True
                     heap.append(nn)
-        if node.parent:
-            print(f"N:{node.index} ({node.g}+{node.h}={node.g+node.h}) P:{node.parent.index}")
-        else:
-            print(f"N:{node.index} ({node.g}|{node.h}) P:None")
         heap.pop(0)
         heap.sort(key=lambda n: n.g + n.h)
 
-    return path
-
 def init():
-    pyxel.init(128,128, title="Pathfinding", fps=60, display_scale=4)
+    pyxel.init(128,128, title="Pathfinding", fps=60, display_scale=6)
     pyxel.load("Assets/pathfinding.pyxres")
 
     global map_graph
@@ -207,19 +207,19 @@ def update():
     for pt in rect_points:
         px,py = check_boundary(px, py, pt)
 
-    if world.path:
-        n = world.path[0]
-        nx,ny = get_node_pos(n)
-        # pcx,pcy = lib.rect_point(RectPos.Center, (px,py,8,8))
-        pcx,pcy = px+4,py+4
-        dir = lib.normalize(nx - pcx, ny - pcy)
-        pcx,pcy = (pcx + dir[0] * player_speed * 0.5, pcy + dir[1] * player_speed * 0.5)
-        dist = lib.distance((nx,ny), (pcx,pcy))
-        if dist < 0.8:
-            # world.path.pop()
-            pcx,pcy = nx,ny
-            del world.path[0]
-        px,py = pcx-4,pcy-4
+    # if world.path:
+    #     n = world.path[0]
+    #     nx,ny = get_node_pos(n)
+    #     # pcx,pcy = lib.rect_point(RectPos.Center, (px,py,8,8))
+    #     pcx,pcy = px+4,py+4
+    #     dir = lib.normalize(nx - pcx, ny - pcy)
+    #     pcx,pcy = (pcx + dir[0] * player_speed * 0.5, pcy + dir[1] * player_speed * 0.5)
+    #     dist = lib.distance((nx,ny), (pcx,pcy))
+    #     if dist < 0.8:
+    #         # world.path.pop()
+    #         pcx,pcy = nx,ny
+    #         del world.path[0]
+    #     px,py = pcx-4,pcy-4
 
 
     global map_graph
@@ -233,12 +233,23 @@ def update():
                 node.visited = False
                 node.processed = False
                 node.parent = None
+                node.g = 9999999
+                node.h = 9999999
 
         # p = dfs(player_node, target_node)
         # p = bfs(player_node, target_node)
-        p = astar(player_node, target_node)
-        world.path = p
+        # world.path = p
 
+        astar_init(player_node, target_node)
+        astar_update(player_node, target_node)
+
+
+    if pyxel.btnp(pyxel.KEY_SPACE, hold=25, repeat=4):
+        astar_update(world.start_node, world.target_node)
+
+    if pyxel.btnp(pyxel.KEY_RETURN):
+        while world.heap:
+            astar_update(world.start_node, world.target_node)
 
     world.player_pos = px,py
     if x != 0:
@@ -261,6 +272,10 @@ def draw():
     # mark_tiles(lib.get_surrounding_tiles(0,pcx,pcy))
 
     for n in map_graph:
+        if n == world.start_node:
+            continue
+        if world.target_node:
+            pyxel.rect(*get_node_pos(world.target_node), 2, 2, 6)
         if n and n.processed:
             pyxel.rect(*get_node_pos(n), 2, 2, 8)
         elif n and n.visited:
@@ -281,6 +296,13 @@ def draw():
 
     # dir = pyxel.mouse_x - px, pyxel.mouse_y - py
     # pyxel.text(5,10, f"Angle: {pyxel.atan2(*dir)}", 7)
+
+    hover = get_node_at(*get_tile_coord(pyxel.mouse_x,pyxel.mouse_y))
+    if hover and hover.h < 9000 and hover.g < 9000:
+        t = int(hover.h + hover.g)
+        pyxel.text(5, 5, f"G: {int(hover.g)}\nH: {int(hover.h)}\nT: {t}", 7)
+    else:
+        pyxel.text(5, 5, f"G: -\nH: -\nT: -", 7)
 
     color = pyxel.pget(pyxel.mouse_x, pyxel.mouse_y)
     pyxel.blt(pyxel.mouse_x + - 3, pyxel.mouse_y - 3, 0, 0, 16, 8, 8, 0)

@@ -1,6 +1,5 @@
 import pyxel
 import random
-import lib
 
 player_x = 60
 sprite_size = 16
@@ -74,11 +73,11 @@ class App:
             pyxel.play(2, 3)
 
     def start_update(self):
-        if pyxel.btnp(pyxel.KEY_SPACE):
+        if pyxel.btnp(pyxel.KEY_SPACE) or pyxel.btnp(pyxel.MOUSE_BUTTON_LEFT):
             self.player_state = "Playing"
 
     def game_update(self):
-        if pyxel.btnp(pyxel.KEY_SPACE):
+        if pyxel.btnp(pyxel.KEY_SPACE) or pyxel.btnp(pyxel.MOUSE_BUTTON_LEFT):
             self.player_dy = jump_boost
             self.sploosh_anims.append((player_x, self.player_y, pyxel.frame_count))
             pyxel.play(3, 0)
@@ -111,13 +110,20 @@ class App:
 
         # Collision Check
         for (x,y,passed) in self.forks:
-            pright = player_x + sprite_size - 2
-            colxl = player_x + 2 > x and player_x + 2 < x + sprite_size
-            colxr = pright > x and pright < x + sprite_size
-            colyt = self.player_y + 5 < y + sprite_size
-            colyb = self.player_y + sprite_size - 5 > y + fork_midgap
-            if ((colxl or colxr) and (colyt or colyb)):
-                forky = y if colyt else y + fork_midgap
+            pright = player_x + sprite_size - 1
+            shaftxl = player_x + 1 > x and player_x + 1 < x + sprite_size
+            shaftxr = pright > x + 5 and pright < x + sprite_size - 5
+            shaftyt = self.player_y + 5 < y
+            shaftyb = self.player_y + sprite_size - 5 > y + fork_midgap + sprite_size
+            forkxl = player_x + 1 > x + 1 and player_x + 1 < x + sprite_size - 1
+            forkxr = pright > x and pright < x + sprite_size
+            forkyt = self.player_y + 5 > y - 5 and self.player_y + 5 < y + sprite_size
+            forkyb = (self.player_y + sprite_size - 5 > y + fork_midgap and
+                      self.player_y + sprite_size - 5 < y + fork_midgap + sprite_size + 5)
+            fork_collision = (forkxl or forkxr) and (forkyt or forkyb)
+            shaft_collision = (shaftxl or shaftxr) and (shaftyt or shaftyb)
+            if (fork_collision or shaft_collision):
+                forky = y if forkyt else y + fork_midgap
                 half = sprite_size // 2
                 pcx,pcy = player_x + half, self.player_y + half
                 fcx,fcy = x + half, forky + half
@@ -125,7 +131,7 @@ class App:
                 disty = round(pcy - fcy)
                 dir = pyxel.atan2(distx, disty)
                 print(dir)
-                if ((dir > -35 and dir < 40) and colyt) or ((dir < -140 or dir > 130) and colyb):
+                if ((dir > -35 and dir < 40) and forkyt) or ((dir < -140 or dir > 130) and forkyb):
                     self.handle_death("Dead_Impaled")
                 else:
                     self.handle_death("Dead_Crashed")
@@ -147,7 +153,7 @@ class App:
             self.sploosh_anims[i] = x - sploosh_speed,y,fc
 
     def dead_update(self):
-        if pyxel.btnp(pyxel.KEY_R):
+        if pyxel.btnp(pyxel.KEY_R) or pyxel.btnp(pyxel.MOUSE_BUTTON_LEFT):
             self.reset()
 
         if self.player_state == "Dead_Crashed":
@@ -169,6 +175,44 @@ class App:
             self.game_update()
         elif self.player_state.startswith("Dead"):
             self.dead_update()
+
+
+    def draw9s(self, x, y, u, v, w, h, cx, cy, tc):
+        w2 = 16-cx
+        h2 = 16-cy
+        # TL Corner
+        pyxel.blt(x, y, 0, u, v, cx, cy, tc)
+        # TR Corner
+        pyxel.blt(x + w - w2, y, 0, u + cx, v, w2, cy, tc)
+        # BL Corner
+        pyxel.blt(x, y + h - h2, 0, u, v + cy, cx, h2, tc)
+        # BR Corner
+        pyxel.blt(x + w - w2, y + h - h2, 0, u + cx, v + cy, w2, h2, tc)
+
+        # Left Line
+        for p in range(cx):
+            color = pyxel.image(0).pget(u + p, v + cy-1)
+            if color != tc:
+                pyxel.line(x+p, y+cy, x+p, y+h-h2-1, color)
+        # Top Line
+        for p in range(cy):
+            color = pyxel.image(0).pget(u+cx-1, v+p)
+            if color != tc:
+                pyxel.line(x+cx, y+p, x+w-w2-1, y+p, color)
+        # Bottom Line
+        for p in range(h2):
+            color = pyxel.image(0).pget(u+cx-1, v+cy+p)
+            if color != tc:
+                pyxel.line(x+cx, y+h-h2+p, x+w-cx, y+h-h2+p, color)
+        # Right Line
+        for p in range(cx):
+            color = pyxel.image(0).pget(u+cx+p, v+cy-1)
+            if color != tc:
+                pyxel.line(x+w+p-cx, y+cy, x+w+p-cx, y+h-h2-1, color)
+
+        # Subtract cx and cy by 1 because the pixels are 0 indexed
+        center_color = pyxel.image(0).pget(u + cx-1, v + cy-1)
+        pyxel.rect(x+cx, y+cy, w-16, h-16, center_color)
 
     def draw(self):
         pyxel.cls(12)
@@ -204,11 +248,18 @@ class App:
 
         # Draw Start Screen
         if self.player_state == "Start":
+<<<<<<< HEAD:flappydogs.py
             # lib.draw9s(33, 60, 0, 112, 92, 16, 8, 12, 8)
             # # Text Outline
             # pyxel.text(38, 66, "Press Space to start!", 0)
             # pyxel.text(38, 65, "Press Space to start!", 7)
             pyxel.blt(48, 60, 0, 0, 128, 64, 32, 0)
+=======
+            self.draw9s(33, 60, 0, 112, 92, 16, 8, 12, 8)
+            # Text Outline
+            pyxel.text(38, 66, "Press Space to start!", 0)
+            pyxel.text(38, 65, "Press Space to start!", 7)
+>>>>>>> 48ea37e5996cd8b76243b77aca19d775de7585bd:flappydog.py
 
         # Draw Game Over
         if self.player_state.startswith("Dead"):
@@ -238,18 +289,18 @@ class App:
                 pyxel.blt(self.hit_vfx[0], self.hit_vfx[1], 0, sprite_u, 88, 16, 16, 0)
 
             text_width = (len(self.game_over_text) * 4 + 10)
-            lib.draw9s((pyxel.width / 2) - (text_width / 2), 60, 0, 112, text_width, 16, 8, 12, 8)
+            self.draw9s((pyxel.width / 2) - (text_width / 2), 60, 0, 112, text_width, 16, 8, 12, 8)
             # Text Outline
             pyxel.text((pyxel.width / 2) - (text_width / 2) + 5, 66, self.game_over_text, 0)
             pyxel.text((pyxel.width / 2) - (text_width / 2) + 5, 65, self.game_over_text, 7)
 
-            lib.draw9s(45, 130, 0, 112, 73, 16, 8, 12, 8)
+            self.draw9s(45, 130, 0, 112, 73, 16, 8, 12, 8)
             # Text Outline
             pyxel.text(50, 136, "Press R to reset", 0)
             pyxel.text(50, 135, "Press R to reset", 7)
 
         # Draw score backplate
-        lib.draw9s(0, 0, 0, 112, 45, 16, 8, 12, 8)
+        self.draw9s(0, 0, 0, 112, 45, 16, 8, 12, 8)
 
         # Text Outline
         pyxel.text(5, 6, f"Score {self.score}", 0)
