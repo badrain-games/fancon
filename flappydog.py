@@ -110,13 +110,20 @@ class App:
 
         # Collision Check
         for (x,y,passed) in self.forks:
-            pright = player_x + sprite_size - 2
-            colxl = player_x + 2 > x and player_x + 2 < x + sprite_size
-            colxr = pright > x and pright < x + sprite_size
-            colyt = self.player_y + 5 < y + sprite_size
-            colyb = self.player_y + sprite_size - 5 > y + fork_midgap
-            if ((colxl or colxr) and (colyt or colyb)):
-                forky = y if colyt else y + fork_midgap
+            pright = player_x + sprite_size - 1
+            shaftxl = player_x + 1 > x and player_x + 1 < x + sprite_size
+            shaftxr = pright > x + 5 and pright < x + sprite_size - 5
+            shaftyt = self.player_y + 5 < y
+            shaftyb = self.player_y + sprite_size - 5 > y + fork_midgap + sprite_size
+            forkxl = player_x + 1 > x + 1 and player_x + 1 < x + sprite_size - 1
+            forkxr = pright > x and pright < x + sprite_size
+            forkyt = self.player_y + 5 > y - 5 and self.player_y + 5 < y + sprite_size
+            forkyb = (self.player_y + sprite_size - 5 > y + fork_midgap and
+                      self.player_y + sprite_size - 5 < y + fork_midgap + sprite_size + 5)
+            fork_collision = (forkxl or forkxr) and (forkyt or forkyb)
+            shaft_collision = (shaftxl or shaftxr) and (shaftyt or shaftyb)
+            if (fork_collision or shaft_collision):
+                forky = y if forkyt else y + fork_midgap
                 half = sprite_size // 2
                 pcx,pcy = player_x + half, self.player_y + half
                 fcx,fcy = x + half, forky + half
@@ -124,7 +131,7 @@ class App:
                 disty = round(pcy - fcy)
                 dir = pyxel.atan2(distx, disty)
                 print(dir)
-                if ((dir > -35 and dir < 40) and colyt) or ((dir < -140 or dir > 130) and colyb):
+                if ((dir > -35 and dir < 40) and forkyt) or ((dir < -140 or dir > 130) and forkyb):
                     self.handle_death("Dead_Impaled")
                 else:
                     self.handle_death("Dead_Crashed")
