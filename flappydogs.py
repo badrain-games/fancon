@@ -204,10 +204,11 @@ class App:
 
         # Draw Start Screen
         if self.player_state == "Start":
-            lib.draw9s(33, 60, 0, 112, 92, 16, 8, 12, 8)
-            # Text Outline
-            pyxel.text(38, 66, "Press Space to start!", 0)
-            pyxel.text(38, 65, "Press Space to start!", 7)
+            # lib.draw9s(33, 60, 0, 112, 92, 16, 8, 12, 8)
+            # # Text Outline
+            # pyxel.text(38, 66, "Press Space to start!", 0)
+            # pyxel.text(38, 65, "Press Space to start!", 7)
+            pyxel.blt(48, 60, 0, 0, 128, 64, 32, 0)
 
         # Draw Game Over
         if self.player_state.startswith("Dead"):
