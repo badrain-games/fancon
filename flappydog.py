@@ -248,18 +248,10 @@ class App:
 
         # Draw Start Screen
         if self.player_state == "Start":
-<<<<<<< HEAD:flappydogs.py
-            # lib.draw9s(33, 60, 0, 112, 92, 16, 8, 12, 8)
-            # # Text Outline
-            # pyxel.text(38, 66, "Press Space to start!", 0)
-            # pyxel.text(38, 65, "Press Space to start!", 7)
-            pyxel.blt(48, 60, 0, 0, 128, 64, 32, 0)
-=======
             self.draw9s(33, 60, 0, 112, 92, 16, 8, 12, 8)
             # Text Outline
             pyxel.text(38, 66, "Press Space to start!", 0)
             pyxel.text(38, 65, "Press Space to start!", 7)
->>>>>>> 48ea37e5996cd8b76243b77aca19d775de7585bd:flappydog.py
 
         # Draw Game Over
         if self.player_state.startswith("Dead"):
