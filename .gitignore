@@ -1,6 +1,5 @@
 /pyxel_examples/
 /tic80
 /__pycache__/
-/release/
 /dist/
 *.pyxapp
