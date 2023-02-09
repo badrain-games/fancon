@@ -12,7 +12,7 @@ fork_spawn_interval = 70
 fork_spawn_count = 8
 tree_spawn_count = 6
 fork_midgap = 50
-game_over_texts = ["Get Flopped!", "Get Forked!", "You're what's for dinner"]
+game_over_texts = ["Get Flopped!", "Get Forked!", "You're what's for dinner", "You're no wiener...", "Not so hot, dog..."]
 
 def get_random_height():
     return random.randrange(20,90)
@@ -248,10 +248,11 @@ class App:
 
         # Draw Start Screen
         if self.player_state == "Start":
-            self.draw9s(33, 60, 0, 112, 92, 16, 8, 12, 8)
+            pyxel.blt(47, 50, 0, 0, 128, 64, 32, 0)
+            self.draw9s(33, 104, 0, 112, 92, 16, 8, 12, 8)
             # Text Outline
-            pyxel.text(38, 66, "Press Space to start!", 0)
-            pyxel.text(38, 65, "Press Space to start!", 7)
+            pyxel.text(38, 110, "Press Space to start!", 0)
+            pyxel.text(38, 109, "Press Space to start!", 7)
 
         # Draw Game Over
         if self.player_state.startswith("Dead"):
