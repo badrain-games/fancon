@@ -207,19 +207,19 @@ def update():
     for pt in rect_points:
         px,py = check_boundary(px, py, pt)
 
-    # if world.path:
-    #     n = world.path[0]
-    #     nx,ny = get_node_pos(n)
-    #     # pcx,pcy = lib.rect_point(RectPos.Center, (px,py,8,8))
-    #     pcx,pcy = px+4,py+4
-    #     dir = lib.normalize(nx - pcx, ny - pcy)
-    #     pcx,pcy = (pcx + dir[0] * player_speed * 0.5, pcy + dir[1] * player_speed * 0.5)
-    #     dist = lib.distance((nx,ny), (pcx,pcy))
-    #     if dist < 0.8:
-    #         # world.path.pop()
-    #         pcx,pcy = nx,ny
-    #         del world.path[0]
-    #     px,py = pcx-4,pcy-4
+    if world.path:
+        n = world.path[0]
+        nx,ny = get_node_pos(n)
+        # pcx,pcy = lib.rect_point(RectPos.Center, (px,py,8,8))
+        pcx,pcy = px+4,py+4
+        dir = lib.normalize(nx - pcx, ny - pcy)
+        pcx,pcy = (pcx + dir[0] * player_speed * 0.5, pcy + dir[1] * player_speed * 0.5)
+        dist = lib.distance((nx,ny), (pcx,pcy))
+        if dist < 0.8:
+            # world.path.pop()
+            pcx,pcy = nx,ny
+            del world.path[0]
+        px,py = pcx-4,pcy-4
 
 
     global map_graph
