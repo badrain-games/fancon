@@ -5,6 +5,7 @@ import math
 from collections import deque
 from lib import RectPos
 from dataclasses import dataclass
+from lib import draw9s
 
 @dataclass
 class Node:
@@ -29,6 +30,7 @@ class World:
     path = []
     angle = 0
     current_alg = "A_Star"
+    help_ui_active = False
 
 def is_boundary(x, y):
     _,ty = pyxel.tilemap(0).pget(x // 8, y // 8)
@@ -168,6 +170,10 @@ def update():
         world.current_alg = "DFS"
     if pyxel.btn(pyxel.KEY_3):
         world.current_alg = "BFS"
+    if pyxel.btn(pyxel.KEY_QUESTION):
+        world.help_ui_active = not world.help_ui_active
+    if pyxel.btn(pyxel.KEY_Q):
+        world.help_ui_active = False
 
     dirx,diry = lib.normalize(x,y)
     px,py = world.player_pos
@@ -272,8 +278,10 @@ def draw_ui():
     else:
         pyxel.text(5, ui_y, f"G: -\nH: -\nT: -", 7)
 
-    
+
     pyxel.text(pyxel.width - 75, pyxel.height - 8, "Press '?' for help", 7)
+    if world.help_ui_active:
+        draw9s(5, 5, 0, 40, pyxel.width - 10, pyxel.height - 32, 8, 12, 8)
 
 
 def draw():
