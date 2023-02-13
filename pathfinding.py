@@ -30,10 +30,6 @@ class World:
     angle = 0
     current_alg = "A_Star"
 
-player_speed = 1.2
-world = World()
-map_graph = []
-
 def is_boundary(x, y):
     _,ty = pyxel.tilemap(0).pget(x // 8, y // 8)
     return ty == 0
@@ -128,7 +124,6 @@ def astar_init(start_node, target_node):
     start_node.processed = True
 
 
-g_cost = 10
 def astar_update(start_node, target_node):
     heap = world.heap
     if heap:
@@ -145,8 +140,8 @@ def astar_update(start_node, target_node):
         for edge in node.edges:
             nn = get_node_at(*edge)
             if not nn.processed:
-                if g_cost + node.g >= nn.g + nn.h:
-                    print(f"I did it {g_cost + node.g}")
+                # if g_cost + node.g >= nn.g + nn.h:
+                #     print(f"I did it {g_cost + node.g}")
                 nn.h = lib.distance(get_node_pos(nn), get_node_pos(world.target_node)) * 1.2
                 nn.g = g_cost + node.g if node.parent else g_cost
                 nn.parent = node
@@ -155,16 +150,6 @@ def astar_update(start_node, target_node):
                     heap.append(nn)
         heap.pop(0)
         heap.sort(key=lambda n: n.g + n.h)
-
-def init():
-    pyxel.init(128,150, title="Pathfinding", fps=60, display_scale=6)
-    pyxel.load("Assets/pathfinding.pyxres")
-
-    global map_graph
-    map_graph = generate_graph()
-    # debug_print_graph()
-    world.player_pos = pyxel.width // 2 - 12, pyxel.height // 2 - 12
-    pyxel.run(update, draw)
 
 def update():
     pyxel.cls(0)
@@ -272,6 +257,25 @@ def mark_tiles(tiles):
     for t in tiles:
         pyxel.rect(t[0]+4, t[1]+4, 2, 2, 7)
 
+def draw_ui():
+    if world.current_alg == "A_Star":
+        pyxel.text(pyxel.width - 54, ui_y, "Selected: A*", 7)
+    if world.current_alg == "DFS":
+        pyxel.text(pyxel.width - 54, ui_y, "Selected: DFS", 7)
+    if world.current_alg == "BFS":
+        pyxel.text(pyxel.width - 54, ui_y, "Selected: BFS", 7)
+
+    hover = get_node_at(*get_tile_coord(pyxel.mouse_x,pyxel.mouse_y))
+    if hover and hover.h < 9000 and hover.g < 9000:
+        t = int(hover.h + hover.g)
+        pyxel.text(5, ui_y, f"G: {int(hover.g)}\nH: {int(hover.h)}\nT: {t}", 7)
+    else:
+        pyxel.text(5, ui_y, f"G: -\nH: -\nT: -", 7)
+
+    
+    pyxel.text(pyxel.width - 75, pyxel.height - 8, "Press '?' for help", 7)
+
+
 def draw():
     pyxel.bltm(0,0,0,0,0,128,128)
 
@@ -279,13 +283,6 @@ def draw():
     side = 0 if world.player_dir == -1 else 8
     anim = pyxel.frame_count % 16 // 8 * 8 if world.player_state == "Moving" else 0
     pyxel.blt(px, py, 0, side, anim, 8, 8, 0)
-
-    if world.current_alg == "A_Star":
-        pyxel.text(5,120, "A Star Selected", 7)
-    if world.current_alg == "DFS":
-        pyxel.text(5,120, "DFS Selected", 7)
-    if world.current_alg == "BFS":
-        pyxel.text(5,120, "BFS Selected", 7)
 
     # pcx,pcy = lib.rect_point(RectPos.Center, (px,py,8,8))
     # mark_tiles(lib.get_surrounding_tiles(0,pcx,pcy))
@@ -316,15 +313,20 @@ def draw():
     # dir = pyxel.mouse_x - px, pyxel.mouse_y - py
     # pyxel.text(5,10, f"Angle: {pyxel.atan2(*dir)}", 7)
 
-    hover = get_node_at(*get_tile_coord(pyxel.mouse_x,pyxel.mouse_y))
-    if hover and hover.h < 9000 and hover.g < 9000:
-        t = int(hover.h + hover.g)
-        pyxel.text(5, 5, f"G: {int(hover.g)}\nH: {int(hover.h)}\nT: {t}", 7)
-    else:
-        pyxel.text(5, 5, f"G: -\nH: -\nT: -", 7)
-
     color = pyxel.pget(pyxel.mouse_x, pyxel.mouse_y)
     pyxel.blt(pyxel.mouse_x + - 3, pyxel.mouse_y - 3, 0, 0, 16, 8, 8, 0)
     # pyxel.text(5,10, f"Color num: {color}", 7)
 
-init()
+    draw_ui()
+
+player_speed = 1.2
+world = World()
+g_cost = 10
+ui_y = 130
+
+pyxel.init(128,150, title="Pathfinding", fps=60, display_scale=5)
+pyxel.load("Assets/pathfinding.pyxres")
+map_graph = generate_graph()
+# debug_print_graph()
+world.player_pos = pyxel.width // 2 - 12, pyxel.height // 2 - 12
+pyxel.run(update, draw)
