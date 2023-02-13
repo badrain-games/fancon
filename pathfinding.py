@@ -28,6 +28,7 @@ class World:
     target_node = None
     path = []
     angle = 0
+    current_alg = "A_Star"
 
 player_speed = 1.2
 world = World()
@@ -156,7 +157,7 @@ def astar_update(start_node, target_node):
         heap.sort(key=lambda n: n.g + n.h)
 
 def init():
-    pyxel.init(128,128, title="Pathfinding", fps=60, display_scale=6)
+    pyxel.init(128,150, title="Pathfinding", fps=60, display_scale=6)
     pyxel.load("Assets/pathfinding.pyxres")
 
     global map_graph
@@ -176,6 +177,13 @@ def update():
         x = -1
     if pyxel.btn(pyxel.KEY_D):
         x = 1
+    if pyxel.btn(pyxel.KEY_1):
+        world.current_alg = "A_Star"
+    if pyxel.btn(pyxel.KEY_2):
+        world.current_alg = "DFS"
+    if pyxel.btn(pyxel.KEY_3):
+        world.current_alg = "BFS"
+
     dirx,diry = lib.normalize(x,y)
     px,py = world.player_pos
 
@@ -221,7 +229,6 @@ def update():
             del world.path[0]
         px,py = pcx-4,pcy-4
 
-
     global map_graph
     if pyxel.btnp(pyxel.MOUSE_BUTTON_LEFT):
         world.mouse_click = pyxel.mouse_x, pyxel.mouse_y
@@ -236,18 +243,23 @@ def update():
                 node.g = 9999999
                 node.h = 9999999
 
-        # p = dfs(player_node, target_node)
-        # p = bfs(player_node, target_node)
-        # world.path = p
+        if world.current_alg == "DFS":
+            p = dfs(player_node, target_node)
+            world.path = p
 
-        astar_init(player_node, target_node)
-        astar_update(player_node, target_node)
+        if world.current_alg == "BFS":
+            p = bfs(player_node, target_node)
+            world.path = p
+
+        if world.current_alg == "A_Star":
+            astar_init(player_node, target_node)
+            astar_update(player_node, target_node)
 
 
-    if pyxel.btnp(pyxel.KEY_SPACE, hold=25, repeat=4):
+    if pyxel.btnp(pyxel.KEY_SPACE, hold=25, repeat=4) and world.current_alg == "A_Star":
         astar_update(world.start_node, world.target_node)
 
-    if pyxel.btnp(pyxel.KEY_RETURN):
+    if pyxel.btnp(pyxel.KEY_RETURN) and world.current_alg == "A_Star":
         while world.heap:
             astar_update(world.start_node, world.target_node)
 
@@ -267,6 +279,13 @@ def draw():
     side = 0 if world.player_dir == -1 else 8
     anim = pyxel.frame_count % 16 // 8 * 8 if world.player_state == "Moving" else 0
     pyxel.blt(px, py, 0, side, anim, 8, 8, 0)
+
+    if world.current_alg == "A_Star":
+        pyxel.text(5,120, "A Star Selected", 7)
+    if world.current_alg == "DFS":
+        pyxel.text(5,120, "DFS Selected", 7)
+    if world.current_alg == "BFS":
+        pyxel.text(5,120, "BFS Selected", 7)
 
     # pcx,pcy = lib.rect_point(RectPos.Center, (px,py,8,8))
     # mark_tiles(lib.get_surrounding_tiles(0,pcx,pcy))
