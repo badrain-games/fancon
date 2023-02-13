@@ -170,9 +170,9 @@ def update():
         world.current_alg = "DFS"
     if pyxel.btn(pyxel.KEY_3):
         world.current_alg = "BFS"
-    if pyxel.btn(pyxel.KEY_QUESTION):
+    if pyxel.btnp(pyxel.KEY_QUESTION):
         world.help_ui_active = not world.help_ui_active
-    if pyxel.btn(pyxel.KEY_Q):
+    if pyxel.btnp(pyxel.KEY_Q):
         world.help_ui_active = False
 
     dirx,diry = lib.normalize(x,y)
