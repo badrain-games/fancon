@@ -88,6 +88,10 @@ def rect_overlaps(r1, r2):
         (r2x > r1x and r2x < r1x + r1w and r2y > r1y and r2y < r1y + r1h)):
         return True
 
+def text_shadow(x, y, text, tcolor, scolor):
+    pyxel.text(x+1, y+1, text, scolor)
+    pyxel.text(x, y, text, tcolor)
+
 def rect_point(point, rect):
     x,y,w,h = rect
     match point:

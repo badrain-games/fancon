@@ -286,8 +286,7 @@ SPACE [TAP]  Search node
 SPACE [HOLD] Auto search
 RETURN       Finish search
         """
-        pyxel.text(10, 10, help_txt, 6)
-        pyxel.text(10, 10, help_txt, 7)
+        lib.text_shadow(10, 10, help_txt, 7, 0)
 
 
 def draw():
