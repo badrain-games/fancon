@@ -254,6 +254,8 @@ def update():
     world.player_state = "Moving" if x != 0 or y != 0 else "Idle"
 
 def draw_ui():
+    draw9s(0, 128, 0, 56, 128, 32, 8, 12, 0)
+
     if world.current_alg == "A_Star":
         pyxel.text(pyxel.width - 54, ui_y, "Selected: A*", 7)
     if world.current_alg == "DFS":
@@ -284,6 +286,7 @@ SPACE [TAP]  Search node
 SPACE [HOLD] Auto search
 RETURN       Finish search
         """
+        pyxel.text(10, 10, help_txt, 6)
         pyxel.text(10, 10, help_txt, 7)
 
 
@@ -317,9 +320,9 @@ def draw():
 player_speed = 1.2
 world = World()
 g_cost = 10
-ui_y = 130
+ui_y = 135
 
-pyxel.init(128,150, title="Pathfinding", fps=60, display_scale=5)
+pyxel.init(128,160, title="Pathfinding", fps=60, display_scale=5)
 pyxel.load("Assets/pathfinding.pyxres")
 map_graph = generate_graph()
 # debug_print_graph()
