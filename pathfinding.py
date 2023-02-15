@@ -257,23 +257,23 @@ def draw_ui():
     draw9s(0, 128, 0, 56, 128, 32, 8, 12, 0)
 
     if world.current_alg == "A_Star":
-        pyxel.text(pyxel.width - 54, ui_y, "Selected: A*", 7)
+        lib.text_shadow(pyxel.width - 54, ui_y, "Selected: A*", 7, 0)
     if world.current_alg == "DFS":
-        pyxel.text(pyxel.width - 54, ui_y, "Selected: DFS", 7)
+        lib.text_shadow(pyxel.width - 54, ui_y, "Selected: DFS", 7, 0)
     if world.current_alg == "BFS":
-        pyxel.text(pyxel.width - 54, ui_y, "Selected: BFS", 7)
+        lib.text_shadow(pyxel.width - 54, ui_y, "Selected: BFS", 7, 0)
 
     hover = get_node_at(*get_tile_coord(pyxel.mouse_x,pyxel.mouse_y))
     if hover and hover.h < 9000 and hover.g < 9000:
         t = int(hover.h + hover.g)
-        pyxel.text(5, ui_y, f"G: {int(hover.g)}\nH: {int(hover.h)}\nT: {t}", 7)
+        lib.text_shadow(5, ui_y, f"G: {int(hover.g)}\nH: {int(hover.h)}\nT: {t}", 7, 0)
     else:
-        pyxel.text(5, ui_y, f"G: -\nH: -\nT: -", 7)
+        lib.text_shadow(5, ui_y, f"G: -\nH: -\nT: -", 7, 0)
 
 
-    pyxel.text(pyxel.width - 75, pyxel.height - 8, "Press '?' for help", 7)
+    lib.text_shadow(pyxel.width - 75, pyxel.height - 8, "Press '?' for help", 7, 0)
     if world.help_ui_active:
-        draw9s(5, 5, 0, 40, pyxel.width - 10, pyxel.height - 32, 8, 12, 8)
+        draw9s(5, 5, 0, 40, pyxel.width - 10, pyxel.height - 42, 8, 12, 8)
         help_txt = """
 Controls:
 
