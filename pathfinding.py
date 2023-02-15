@@ -22,13 +22,10 @@ class World:
     player_pos = (0,0)
     player_dir = 0
     player_state = "Idle"
-    mouse_click = None
-    surrounding_grid = [(0,0)] * 8
     heap = []
     start_node = None
     target_node = None
     path = []
-    angle = 0
     current_alg = "A_Star"
     help_ui_active = False
 
@@ -40,9 +37,6 @@ def get_block_rect(x, y):
     bx = x // 8 * 8
     by = y // 8 * 8
     return (bx,by,8,8)
-
-def player_rect():
-    return (*world.player_pos, 8, 8)
 
 def get_node_pos(node):
     return node.index[1] * 8 + 4, node.index[0] * 8 + 4
@@ -142,8 +136,6 @@ def astar_update(start_node, target_node):
         for edge in node.edges:
             nn = get_node_at(*edge)
             if not nn.processed:
-                # if g_cost + node.g >= nn.g + nn.h:
-                #     print(f"I did it {g_cost + node.g}")
                 nn.h = lib.distance(get_node_pos(nn), get_node_pos(world.target_node)) * 1.2
                 nn.g = g_cost + node.g if node.parent else g_cost
                 nn.parent = node
@@ -155,6 +147,22 @@ def astar_update(start_node, target_node):
 
 def update():
     pyxel.cls(0)
+
+    if pyxel.btnp(pyxel.KEY_SLASH) and pyxel.btn(pyxel.KEY_SHIFT):
+        world.help_ui_active = not world.help_ui_active
+    if pyxel.btnp(pyxel.KEY_Q):
+        world.help_ui_active = False
+
+    if pyxel.btn(pyxel.KEY_1):
+        world.current_alg = "A_Star"
+    if pyxel.btn(pyxel.KEY_2):
+        world.current_alg = "DFS"
+    if pyxel.btn(pyxel.KEY_3):
+        world.current_alg = "BFS"
+
+    if world.help_ui_active:
+        return
+
     x,y = 0,0
     if pyxel.btn(pyxel.KEY_W):
         y = -1
@@ -164,17 +172,6 @@ def update():
         x = -1
     if pyxel.btn(pyxel.KEY_D):
         x = 1
-    if pyxel.btn(pyxel.KEY_1):
-        world.current_alg = "A_Star"
-    if pyxel.btn(pyxel.KEY_2):
-        world.current_alg = "DFS"
-    if pyxel.btn(pyxel.KEY_3):
-        world.current_alg = "BFS"
-    if pyxel.btnp(pyxel.KEY_QUESTION):
-        world.help_ui_active = not world.help_ui_active
-    if pyxel.btnp(pyxel.KEY_Q):
-        world.help_ui_active = False
-
     dirx,diry = lib.normalize(x,y)
     px,py = world.player_pos
 
@@ -222,8 +219,6 @@ def update():
 
     global map_graph
     if pyxel.btnp(pyxel.MOUSE_BUTTON_LEFT):
-        world.mouse_click = pyxel.mouse_x, pyxel.mouse_y
-
         player_node = get_node_at(*get_tile_coord(px,py))
         target_node = get_node_at(*get_tile_coord(pyxel.mouse_x,pyxel.mouse_y))
         for node in map_graph:
@@ -259,10 +254,6 @@ def update():
         world.player_dir = 1 if x > 0 else -1
     world.player_state = "Moving" if x != 0 or y != 0 else "Idle"
 
-def mark_tiles(tiles):
-    for t in tiles:
-        pyxel.rect(t[0]+4, t[1]+4, 2, 2, 7)
-
 def draw_ui():
     if world.current_alg == "A_Star":
         pyxel.text(pyxel.width - 54, ui_y, "Selected: A*", 7)
@@ -282,6 +273,19 @@ def draw_ui():
     pyxel.text(pyxel.width - 75, pyxel.height - 8, "Press '?' for help", 7)
     if world.help_ui_active:
         draw9s(5, 5, 0, 40, pyxel.width - 10, pyxel.height - 32, 8, 12, 8)
+        help_txt = """
+Controls:
+
+WASD         Move character
+Num 1-3      Select alg
+
+For A*:
+
+SPACE [TAP]  Search node
+SPACE [HOLD] Auto search
+RETURN       Finish search
+        """
+        pyxel.text(10, 10, help_txt, 7)
 
 
 def draw():
@@ -291,9 +295,6 @@ def draw():
     side = 0 if world.player_dir == -1 else 8
     anim = pyxel.frame_count % 16 // 8 * 8 if world.player_state == "Moving" else 0
     pyxel.blt(px, py, 0, side, anim, 8, 8, 0)
-
-    # pcx,pcy = lib.rect_point(RectPos.Center, (px,py,8,8))
-    # mark_tiles(lib.get_surrounding_tiles(0,pcx,pcy))
 
     for n in map_graph:
         if n == world.start_node:
@@ -309,23 +310,10 @@ def draw():
         pyxel.rect(n.index[1]*8+4, n.index[0]*8+4, 2, 2, 7)
 
 
-    # if world.mouse_click is not None:
-    #     mx,my = world.mouse_click
-    #     mark_tiles(lib.get_surrounding_tiles(0,mx,my))
-
-    # tx,ty = pyxel.tilemap(0).pget(pyxel.mouse_x // 8, pyxel.mouse_y // 8)
-    # pyxel.text(5,3, f"Tile at {pyxel.mouse_y // 8+1}, {pyxel.mouse_x // 8+1}: {tx},{ty}", 7)
-
-    # pyxel.text(5,10, f"Angle: {world.angle}", 7)
-
-    # dir = pyxel.mouse_x - px, pyxel.mouse_y - py
-    # pyxel.text(5,10, f"Angle: {pyxel.atan2(*dir)}", 7)
+    draw_ui()
 
     color = pyxel.pget(pyxel.mouse_x, pyxel.mouse_y)
     pyxel.blt(pyxel.mouse_x + - 3, pyxel.mouse_y - 3, 0, 0, 16, 8, 8, 0)
-    # pyxel.text(5,10, f"Color num: {color}", 7)
-
-    draw_ui()
 
 player_speed = 1.2
 world = World()
