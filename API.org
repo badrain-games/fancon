@@ -40,7 +40,7 @@
 - =mouse_wheel= The current value of the mouse wheel
 
 - =btn(key)= Return =True= if =key= is pressed, otherwise return
-  =False=. ([[file:python/pyxel/__init__.pyi][Key definition list]])
+  =False=.
 
 - =btnp(key, [hold], [repeat])= Return =True= if =key= is pressed at
   that frame, otherwise return =False=. When =hold= and =repeat= are

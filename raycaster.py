@@ -24,7 +24,7 @@ def draw():
     for col in range(px.width):
         height = px.height * (0.3 + ((px.sin(col + px.frame_count) + 1) * 0.25))
         ch = (px.height - height) // 2
-        px.line(col, ch, col, ch + height, colors[((col+px.frame_count*2) // 6) % len(colors)])
+        px.line(col, ch, col, ch + height, colors[len(colors) - 1 - (((col+px.frame_count*2) // 6) % len(colors))])
 
 px.init(640,400, title="Raycaster", fps=60, display_scale=2)
 px.load("Assets/raycaster.pyxres")
